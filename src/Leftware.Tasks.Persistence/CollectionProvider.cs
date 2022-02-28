@@ -1,6 +1,7 @@
 ﻿using Leftware.Injection.Attributes;
 using Leftware.Tasks.Core.Model;
 using Leftware.Tasks.Persistence;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
 
@@ -37,6 +38,17 @@ public class CollectionProvider : ICollectionProvider
         var sql = "SELECT * FROM col_item WHERE col = @collection";
         var items = _provider.GetObjects<CollectionItem>(sql, new { collection });
         return items;
+    }
+
+    public T? GetItemContentAs<T>(string collection, string key)
+    {
+        var items = GetItems(collection);
+        if (items == null || items.Count == 0) return default;
+        
+        var item = items.FirstOrDefault(i => i.Key == key);
+        if (item == null) return default;
+
+        return item.As<T>();
     }
 
     public async Task AddCollectionAsync(string name, CollectionItemType itemType, string? schema = null)

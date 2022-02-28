@@ -7,6 +7,7 @@ public class TaskExecutionContext
     //public MacroHolder MacroHolder { get; set; }
     public IList<CommonTaskHolder> HolderList { get; set; }
     public IDictionary<string, object> ExtendedInfo { get; internal set; }
+    public ICollectionProvider CollectionProvider { get; set; }
 
     public TaskExecutionContext()
     {

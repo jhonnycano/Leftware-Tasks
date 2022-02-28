@@ -8,8 +8,8 @@ namespace Leftware.Tasks.Persistence;
 [Service]
 public class SqliteDatabaseProvider
 {
-    private const string CONNECTION_TEMPLATE = "Data Source = {0}";
-    private const string DATABASE_FILE = "leftwareTasks.db";
+    internal const string CONNECTION_TEMPLATE = "Data Source = {0}";
+    internal const string DATABASE_FILE = "leftwareTasks.db";
     internal string FilePath { get; }
 
     public SqliteDatabaseProvider()
@@ -81,26 +81,4 @@ public class SqliteDatabaseProvider
         //connection.LoadExtension("SQLite.Interop.dll", "sqlite3_json_init");
         return connection;
     }
-
-    public void Validate()
-    {
-        if (File.Exists(FilePath))
-        {
-            if (CheckDatabase()) return;
-            File.Delete(FilePath);
-            Thread.Sleep(500);
-        }
-
-        var sql = FileResources.Db_Create;
-        Execute(sql, null);
-    }
-
-    public bool CheckDatabase()
-    {
-        var sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='col_header';";
-        var list = GetList(sql);
-        return list.Count > 0;
-    }
-
-
 }

@@ -12,24 +12,23 @@ public class ConsoleModeManager
 {
     private readonly ICommonTaskLocator _commonTaskLocator;
     private readonly ICommonTaskProvider _commonTaskProvider;
-
+    private readonly ICollectionProvider _collectionProvider;
     //private readonly IMacroManager _macroManager;
-    //private readonly ICollectionProvider _collectionProvider;
     private IList<CommonTaskHolder> _holderList;
     private CommonTaskHolder? _lastHolder;
     private IDictionary<string, object>? _lastData;
 
     public ConsoleModeManager(
         ICommonTaskLocator consoleTaskLocator,
-        ICommonTaskProvider commonTaskProvider
-        //IMacroManager macroManager,
-        //ICollectionProvider collectionProvider
+        ICommonTaskProvider commonTaskProvider,
+        ICollectionProvider collectionProvider
+        //IMacroManager macroManager
         )
     {
         _commonTaskLocator = consoleTaskLocator;
         _commonTaskProvider = commonTaskProvider;
+        _collectionProvider = collectionProvider;
         //_macroManager = macroManager;
-        //_collectionProvider = collectionProvider;
         _holderList = _commonTaskLocator.GetTaskHolderList();
     }
 
@@ -37,6 +36,7 @@ public class ConsoleModeManager
     {
         SetupLanguage();
         ctx.HolderList = _holderList;
+        ctx.CollectionProvider = _collectionProvider;
 
         var currentList = _holderList;
         var pageInfo = SetupPageInfo(currentList);
@@ -145,6 +145,8 @@ public class ConsoleModeManager
                         continue;
                     }
                     _lastData = dic;
+
+                    if (!AnsiConsole.Confirm("Proceed with execution?")) continue;
                 }
 
                 if (!ctx.TasksToSkipInMacroRecord.Contains(selectedHolder.Key))

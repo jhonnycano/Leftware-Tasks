@@ -1,4 +1,6 @@
-﻿namespace Leftware.Tasks.Core.Model;
+﻿using Newtonsoft.Json;
+
+namespace Leftware.Tasks.Core.Model;
 
 public class CollectionItem
 {
@@ -24,5 +26,10 @@ public class CollectionItem
     public string Key { get; set; }
     public string Label { get; set; }
     public string Content { get; set; }
+
+    public T? As<T>()
+    {
+        return JsonConvert.DeserializeObject<T>(Content);
+    }
 }
 

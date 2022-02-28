@@ -12,6 +12,7 @@ internal class Application
 {
     private readonly ConsoleModeManager _consoleMode;
     private readonly SqliteDatabaseProvider _provider;
+    private readonly CollectionInitializer _collectionInitializer;
     private readonly ILogger _logger;
 
     /*
@@ -21,6 +22,7 @@ private readonly ConsoleTaskExecutor _consoleTaskExecutor;
     public Application(
         ConsoleModeManager consoleMode,
         SqliteDatabaseProvider provider,
+        CollectionInitializer collectionInitializer,
         ILogger logger
         /*
         ConsoleTaskExecutor consoleTaskExecutor,
@@ -29,6 +31,7 @@ private readonly ConsoleTaskExecutor _consoleTaskExecutor;
     {
         _consoleMode = consoleMode;
         _provider = provider;
+        _collectionInitializer = collectionInitializer;
         _logger = logger;
         /*
 _consoleTaskExecutor = consoleTaskExecutor;
@@ -75,7 +78,7 @@ _consoleTaskExecutor = consoleTaskExecutor;
 
         try
         {
-            _provider.Validate();
+            await _collectionInitializer.ValidateAsync();
             await _consoleMode.Execute(ctx);
         }
         catch (Exception ex)
