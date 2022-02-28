@@ -5,15 +5,16 @@ public class DescriptorAttribute : Attribute
 {
     public string Name { get; set; }
     public int SortOrder { get; set; }
-    //public bool UseDefinitionForInput { get; }
+    public bool ConfirmBeforeExecution { get; set; }
 
     public DescriptorAttribute(
         string name,
-        int sortOrder = 0
+        int sortOrder = 0,
+        bool confirmBeforeExecution = true
         )
     {
         Name = name;
         SortOrder = sortOrder;
-        //UseDefinitionForInput = false;
+        ConfirmBeforeExecution = confirmBeforeExecution;
     }
 }

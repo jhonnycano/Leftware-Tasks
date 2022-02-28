@@ -146,7 +146,17 @@ public class ConsoleModeManager
                     }
                     _lastData = dic;
 
-                    if (!AnsiConsole.Confirm("Proceed with execution?")) continue;
+                    Console.WriteLine();
+                    if (selectedHolder.ConfirmBeforeExecution)
+                    {
+                        var t = new Table().AddColumns("Key", "Value");
+                        foreach (var item in dic)
+                        {
+                            t.AddRow($"[blue]{item.Key}[/]", $"[yellow]{item.Value}[/]");
+                        }
+                        AnsiConsole.Write(t);
+                        if (!AnsiConsole.Confirm("Proceed with execution?")) continue;
+                    }
                 }
 
                 if (!ctx.TasksToSkipInMacroRecord.Contains(selectedHolder.Key))

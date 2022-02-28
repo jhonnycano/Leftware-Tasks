@@ -2,7 +2,11 @@
 
 namespace Leftware.Tasks.Impl.General
 {
-    [Descriptor("Exit", 999)]
+    [Descriptor(
+        "Exit", 
+        SortOrder = 999, 
+        ConfirmBeforeExecution = false
+        )]
     public class FinalizeApplicationTask : CommonTaskBase
     {
         public override async Task<IDictionary<string, object>?> GetTaskInput()

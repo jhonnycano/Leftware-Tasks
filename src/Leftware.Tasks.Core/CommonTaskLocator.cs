@@ -71,6 +71,7 @@ public class CommonTaskLocator : ICommonTaskLocator
             taskType.FullName,
             descriptor.Name,
             descriptor.SortOrder,
+            descriptor.ConfirmBeforeExecution,
             taskType
            );
     }
