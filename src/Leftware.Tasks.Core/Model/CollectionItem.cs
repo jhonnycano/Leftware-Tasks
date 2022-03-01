@@ -27,9 +27,11 @@ public class CollectionItem
     public string Label { get; set; }
     public string Content { get; set; }
 
-    public T? As<T>()
+    public T As<T>()
     {
-        return JsonConvert.DeserializeObject<T>(Content);
+        var result = JsonConvert.DeserializeObject<T>(Content) 
+            ?? throw new InvalidOperationException($"Could not deserialize content for collection item {Collection}.{Key} into type {typeof(T).Name}");
+        return result;
     }
 }
 

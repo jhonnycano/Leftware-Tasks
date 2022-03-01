@@ -3,7 +3,6 @@ using Leftware.Tasks.Core;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
 using Spectre.Console;
-using System.Text.RegularExpressions;
 
 namespace Leftware.Tasks.Impl.General.Collections
 {
@@ -22,25 +21,13 @@ namespace Leftware.Tasks.Impl.General.Collections
             var dic = GetEmptyTaskInput();
 
             var cols = _collectionProvider.GetCollections();
-            var collection = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                .Title("[green]Collection[/]")
-                .AddChoices(cols)
-                );
-            dic["col"] = collection;
+            var collection = SelectOption(dic, "col", "Collection", cols);
+            if (collection == null) return null;
 
             var collectionHeader = _collectionProvider.GetHeader(collection) ?? throw new InvalidOperationException("Collection not found");
 
-            var key = AnsiConsole.Prompt(
-                new TextPrompt<string>("[green]Key[/]")
-                .Validate(o => Regex.IsMatch(o, "\\w+"))
-                );
-            dic["key"] = key;
-
-            var label = AnsiConsole.Prompt(
-                new TextPrompt<string>("[green]Label[/]")
-                );
-            dic["label"] = label;
+            if (!GetStringValidRegex(dic, "key", "Key", null, "\\w+")) return null;
+            if (!GetString(dic, "label", "Label")) return null;
 
             var content = AnsiConsole.Prompt(
                 new TextPrompt<string>("[green]Content[/]")

@@ -20,30 +20,21 @@ public class CloneCosmosContainerTask : CommonTaskBase
     {
         var dic = GetEmptyTaskInput();
 
-        var items = _collectionProvider.GetItems("cosmos-connection");
-        var connectionSource = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-            .Title("[green]Cosmos Connection source[/]")
-            .AddChoices(items.Select(i => i.Label))
-            );
-        var sourceConnectionItem = items.First(i => i.Label == connectionSource);
-        var sourceConnection = sourceConnectionItem.As<CosmosConnection>() ?? throw new InvalidOperationException("Could not convert value");
-        dic["source-connection"] = sourceConnectionItem.Key;
+        var sourceConnectionItem = GetItem(dic, "source-connection", "Connection to CosmosDB", "cosmos-connection");
+        if (sourceConnectionItem == null) return null;
 
-        if (!GetString(dic, "source-database", "Source Database", sourceConnection.Database, "cosmos-database")) return null;
-        if (!GetString(dic, "source-container", "Source Container", sourceConnection.Container, "cosmos-container")) return null;
+        var sourceConnection = sourceConnectionItem.As<CosmosConnection>();
 
-        var connectionTarget = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-            .Title("[green]Cosmos Connection target[/]")
-            .AddChoices(items.Select(i => i.Label))
-            );
-        var targetConnectionItem = items.First(i => i.Label == connectionTarget);
-        var targetConnection = sourceConnectionItem.As<CosmosConnection>() ?? throw new InvalidOperationException("Could not convert value");
-        dic["target-connection"] = targetConnectionItem.Key;
+        if (!GetStringFromCollection(dic, "source-database", "Source Database", "cosmos-database", sourceConnection.Database)) return null;
+        if (!GetStringFromCollection(dic, "source-container", "Source Container", "cosmos-container", sourceConnection.Container)) return null;
 
-        if (!GetString(dic, "target-database", "Target Database", targetConnection.Database, "cosmos-database")) return null;
-        if (!GetString(dic, "target-container", "Target Container", targetConnection.Container, "cosmos-container")) return null;
+        var targetConnectionItem = GetItem(dic, "target-connection", "Connection to CosmosDB", "cosmos-connection");
+        if (targetConnectionItem == null) return null;
+
+        var targetConnection = targetConnectionItem.As<CosmosConnection>();
+
+        if (!GetStringFromCollection(dic, "target-database", "Target Database", "cosmos-database", targetConnection.Database)) return null;
+        if (!GetStringFromCollection(dic, "target-container", "Target Container", "cosmos-container", targetConnection.Container)) return null;
 
         return dic;
     }

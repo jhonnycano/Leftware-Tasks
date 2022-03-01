@@ -40,13 +40,13 @@ public class CollectionProvider : ICollectionProvider
         return items;
     }
 
-    public T? GetItemContentAs<T>(string collection, string key)
+    public T GetItemContentAs<T>(string collection, string key)
     {
         var items = GetItems(collection);
-        if (items == null || items.Count == 0) return default;
-        
+        if (items == null || items.Count == 0) throw new InvalidOperationException($"Collection empty. {collection}");
+
         var item = items.FirstOrDefault(i => i.Key == key);
-        if (item == null) return default;
+        if (item == null) throw new InvalidOperationException($"Key not found in collection. {collection}.{key}");
 
         return item.As<T>();
     }

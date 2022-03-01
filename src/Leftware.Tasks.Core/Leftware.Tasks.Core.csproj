@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Leftware.Common" Version="0.2.21" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.4" />
+    <PackageReference Include="NJsonSchema" Version="10.6.10" />
     <PackageReference Include="Spectre.Console" Version="0.43.0" />	  
   </ItemGroup>
 

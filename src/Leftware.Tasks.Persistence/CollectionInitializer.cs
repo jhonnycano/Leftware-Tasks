@@ -2,7 +2,6 @@
 using Leftware.Tasks.Core;
 using Leftware.Tasks.Core.Model;
 using Leftware.Tasks.Persistence.Resources;
-using NJsonSchema;
 
 namespace Leftware.Tasks.Persistence
 {
@@ -45,17 +44,14 @@ namespace Leftware.Tasks.Persistence
             var sql = FileResources.Db_Create;
             _dbProvider.Execute(sql, null);
 
-            var cosmosConnectionSchema = GetJsonSchemaForType<CosmosConnection>();
+            var cosmosConnectionSchema = UtilJsonSchema.GetJsonSchemaForType<CosmosConnection>();
             await _collectionProvider.AddCollectionAsync("cosmos-connection", CollectionItemType.JsonObject, cosmosConnectionSchema);
             await _collectionProvider.AddCollectionAsync("cosmos-database", CollectionItemType.String);
             await _collectionProvider.AddCollectionAsync("cosmos-container", CollectionItemType.String);
-        }
 
-        private static string GetJsonSchemaForType<T>()
-        {
-            var schema = JsonSchema.FromType<T>();
-            var schemaData = schema.ToJson();
-            return schemaData;
+            var serviceBusTopicConnectionSchema = UtilJsonSchema.GetJsonSchemaForType<ServiceBusTopicConnection>();
+            await _collectionProvider.AddCollectionAsync("service-bus-topic-connection", CollectionItemType.JsonObject, serviceBusTopicConnectionSchema);
+
         }
     }
 }

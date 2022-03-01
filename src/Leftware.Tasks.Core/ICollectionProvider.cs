@@ -14,7 +14,7 @@ public interface ICollectionProvider
     IList<string> GetCollections();
     CollectionHeader? GetHeader(string col);
     IList<CollectionItem> GetItems(string collection);
-    T? GetItemContentAs<T>(string collection, string key);
+    T GetItemContentAs<T>(string collection, string key);
 
     Task AddCollectionAsync(string name, CollectionItemType type, string? schema = null);
     Task AddItemAsync(string collection, string key, string label, string content);
