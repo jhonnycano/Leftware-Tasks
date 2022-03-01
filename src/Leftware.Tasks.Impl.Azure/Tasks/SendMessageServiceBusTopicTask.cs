@@ -20,25 +20,25 @@ namespace Leftware.Tasks.Impl.Azure.Tasks
         {
             var dic = GetEmptyTaskInput();
 
-            var connectionItem = GetItem(dic, "connection", "Connection to Service Bus Topic", "service-bus-topic-connection");
+            var connectionItem = Input.GetItem(dic, "connection", "Connection to Service Bus Topic", "service-bus-topic-connection");
             if (connectionItem == null) return null;
             _ = connectionItem.As<ServiceBusTopicConnection>();
 
             var messageSourceOptions = new[] { MessageSourceOptions.File, MessageSourceOptions.ConsoleInput, MessageSourceOptions.ContextProperty };
-            var source = SelectOption(dic, "source-type", "Type of source for the message", messageSourceOptions);
+            var source = Input.SelectOption(dic, "source-type", "Type of source for the message", messageSourceOptions);
             if (source == null) return null;
 
             switch (source)
             {
                 case MessageSourceOptions.File:
-                    if (!GetExistingFile(dic, "source-value", "File path")) return null;
+                    if (!Input.GetExistingFile(dic, "source-value", "File path")) return null;
                     break;
                 case MessageSourceOptions.ConsoleInput:
                     var messageSchema = UtilJsonSchema.GetJsonSchemaForType<ServiceBusTopicMessage>();
-                    if (!GetJson(dic, "source-value", "Json message", null, messageSchema)) return null;
+                    if (!Input.GetJson(dic, "source-value", "Json message", null, messageSchema)) return null;
                     break;
                 case MessageSourceOptions.ContextProperty:
-                    if (!GetString(dic, "source-value", "Context property key")) return null;
+                    if (!Input.GetString(dic, "source-value", "Context property key")) return null;
                     break;
             }
             return dic;

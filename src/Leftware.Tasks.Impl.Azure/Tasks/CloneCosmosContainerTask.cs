@@ -20,21 +20,21 @@ public class CloneCosmosContainerTask : CommonTaskBase
     {
         var dic = GetEmptyTaskInput();
 
-        var sourceConnectionItem = GetItem(dic, "source-connection", "Connection to CosmosDB", "cosmos-connection");
+        var sourceConnectionItem = Input.GetItem(dic, "source-connection", "Connection to CosmosDB", "cosmos-connection");
         if (sourceConnectionItem == null) return null;
 
         var sourceConnection = sourceConnectionItem.As<CosmosConnection>();
 
-        if (!GetStringFromCollection(dic, "source-database", "Source Database", "cosmos-database", sourceConnection.Database)) return null;
-        if (!GetStringFromCollection(dic, "source-container", "Source Container", "cosmos-container", sourceConnection.Container)) return null;
+        if (!Input.GetStringFromCollection(dic, "source-database", "Source Database", "cosmos-database", sourceConnection.Database)) return null;
+        if (!Input.GetStringFromCollection(dic, "source-container", "Source Container", "cosmos-container", sourceConnection.Container)) return null;
 
-        var targetConnectionItem = GetItem(dic, "target-connection", "Connection to CosmosDB", "cosmos-connection");
+        var targetConnectionItem = Input.GetItem(dic, "target-connection", "Connection to CosmosDB", "cosmos-connection");
         if (targetConnectionItem == null) return null;
 
         var targetConnection = targetConnectionItem.As<CosmosConnection>();
 
-        if (!GetStringFromCollection(dic, "target-database", "Target Database", "cosmos-database", targetConnection.Database)) return null;
-        if (!GetStringFromCollection(dic, "target-container", "Target Container", "cosmos-container", targetConnection.Container)) return null;
+        if (!Input.GetStringFromCollection(dic, "target-database", "Target Database", "cosmos-database", targetConnection.Database)) return null;
+        if (!Input.GetStringFromCollection(dic, "target-container", "Target Container", "cosmos-container", targetConnection.Container)) return null;
 
         return dic;
     }

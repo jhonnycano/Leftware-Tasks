@@ -13,14 +13,17 @@ public class CommonTaskProvider : ICommonTaskProvider
 {
     private readonly IServiceLocator _serviceLocator;
     private readonly ICommonTaskLocator _commonTaskLocator;
+    private readonly CommonTaskInputHelper _commonTaskInputHelper;
 
     public CommonTaskProvider(
         IServiceLocator serviceLocator,
-        ICommonTaskLocator commonTaskLocator
+        ICommonTaskLocator commonTaskLocator,
+        CommonTaskInputHelper commonTaskInputHelper
         )
     {
         _serviceLocator = serviceLocator;
         _commonTaskLocator = commonTaskLocator;
+        _commonTaskInputHelper = commonTaskInputHelper;
     }
 
     public CommonTaskBase GetTaskByKey(string key, TaskExecutionContext ctx)
@@ -28,6 +31,7 @@ public class CommonTaskProvider : ICommonTaskProvider
         var holder = _commonTaskLocator.FindTask(key) ?? throw new InvalidOperationException($"Task not found by key: {key}");        
         var task = GetTask(holder.TaskType);
         task.Context = ctx;
+        task.Input = _commonTaskInputHelper;
         return task;
     }
 

@@ -21,13 +21,13 @@ namespace Leftware.Tasks.Impl.General.Collections
             var dic = GetEmptyTaskInput();
 
             var cols = _collectionProvider.GetCollections();
-            var collection = SelectOption(dic, "col", "Collection", cols);
+            var collection = Input.SelectOption(dic, "col", "Collection", cols);
             if (collection == null) return null;
 
             var collectionHeader = _collectionProvider.GetHeader(collection) ?? throw new InvalidOperationException("Collection not found");
 
-            if (!GetStringValidRegex(dic, "key", "Key", null, "\\w+")) return null;
-            if (!GetString(dic, "label", "Label")) return null;
+            if (!Input.GetStringValidRegex(dic, "key", "Key", null, "[A-Za-z\\-_]+")) return null;
+            if (!Input.GetString(dic, "label", "Label")) return null;
 
             var content = AnsiConsole.Prompt(
                 new TextPrompt<string>("[green]Content[/]")
