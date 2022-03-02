@@ -13,6 +13,7 @@ public class ConsoleModeManager
     private readonly ICommonTaskLocator _commonTaskLocator;
     private readonly ICommonTaskProvider _commonTaskProvider;
     private readonly ICollectionProvider _collectionProvider;
+    private readonly ICommonTaskInputManager _commonTaskInputManager;
     //private readonly IMacroManager _macroManager;
     private IList<CommonTaskHolder> _holderList;
     private CommonTaskHolder? _lastHolder;
@@ -21,13 +22,16 @@ public class ConsoleModeManager
     public ConsoleModeManager(
         ICommonTaskLocator consoleTaskLocator,
         ICommonTaskProvider commonTaskProvider,
-        ICollectionProvider collectionProvider
+        ICollectionProvider collectionProvider, 
+        ICommonTaskInputManager commonTaskInputManager
         //IMacroManager macroManager
         )
     {
         _commonTaskLocator = consoleTaskLocator;
         _commonTaskProvider = commonTaskProvider;
         _collectionProvider = collectionProvider;
+        _commonTaskInputManager = commonTaskInputManager;
+
         //_macroManager = macroManager;
         _holderList = _commonTaskLocator.GetTaskHolderList();
     }
@@ -137,20 +141,25 @@ public class ConsoleModeManager
                 // ask for input
                 if (askForData)
                 {
-                    var dic = await taskInstance.GetTaskInput();
-                    if (dic == null)
+                    var dicParams = taskInstance.GetTaskParameterDefinition();
+
+                    var dicTaskInput = dicParams == null ?
+                        await taskInstance.GetTaskInput() :
+                        _commonTaskInputManager.GetTaskInput(dicParams);
+
+                    if (dicTaskInput == null)
                     {
                         Console.WriteLine("No suitable input to execute data. Press enter to continue");
                         UtilConsole.Pause();
                         continue;
                     }
-                    _lastData = dic;
+                    _lastData = dicTaskInput;
 
                     Console.WriteLine();
                     if (selectedHolder.ConfirmBeforeExecution)
                     {
                         var t = new Table().AddColumns("Key", "Value");
-                        foreach (var item in dic)
+                        foreach (var item in dicTaskInput)
                         {
                             t.AddRow($"[blue]{item.Key}[/]", $"[yellow]{item.Value}[/]");
                         }

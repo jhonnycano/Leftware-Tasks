@@ -1,5 +1,6 @@
 ﻿using Leftware.Common;
 using Leftware.Tasks.Core;
+using Leftware.Tasks.Core.TaskParameters;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
 using Spectre.Console;
@@ -9,6 +10,7 @@ namespace Leftware.Tasks.Impl.General.Collections
     [Descriptor("General - Show collection")]
     public class ShowCollectionTask : CommonTaskBase
     {
+        private const string COLLECTION = "collection";
         private readonly ICollectionProvider _collectionProvider;
 
         public ShowCollectionTask(ICollectionProvider collectionProvider)
@@ -16,25 +18,17 @@ namespace Leftware.Tasks.Impl.General.Collections
             _collectionProvider = collectionProvider;
         }
 
-        public override async Task<IDictionary<string, object>?> GetTaskInput()
+        public override IList<TaskParameter> GetTaskParameterDefinition()
         {
-            var dic = GetEmptyTaskInput();
-            
-            var cols = _collectionProvider.GetCollections();
-
-            var collection = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                .Title("[green]Collection[/]")
-                .AddChoices(cols)
-                );
-            dic["col"] = collection;
-
-            return dic;
+            return new List<TaskParameter>
+            {
+                new SelectStringTaskParameter(COLLECTION, "Collection", _collectionProvider.GetCollections())
+            };
         }
 
         public override async Task Execute(IDictionary<string, object> input)
         {
-            var col = UtilCollection.Get(input, "col", "");
+            var col = UtilCollection.Get(input, COLLECTION, "");
 
             var header = _collectionProvider.GetHeader(col) ?? throw new InvalidOperationException("Collection not found");
             var tableHeader = new Table()
