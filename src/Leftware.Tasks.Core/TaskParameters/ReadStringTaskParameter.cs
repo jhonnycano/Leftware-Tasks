@@ -19,6 +19,7 @@ public class ReadStringTaskParameter : TaskParameter<string>
     public string CancelString { get; private set; }
     public string? RegularExpression { get; private set; }
     public IList<(Func<string, bool> validator, string message)> Validations { get; private set; }
+    public IList<(Func<string, ConsoleReadContext, bool> validator, string message)> ReadContextValidations { get; private set; }
 
     public ReadStringTaskParameter WithCurrentValue(string currentValue)
     {
@@ -49,6 +50,13 @@ public class ReadStringTaskParameter : TaskParameter<string>
     {
         if (Validations == null) Validations = new List<(Func<string, bool>,string)>();
         Validations.Add((validation, message));
+        return this;
+    }
+
+    public ReadStringTaskParameter WithReadContextValidation(Func<string, ConsoleReadContext, bool> validation, string message)
+    {
+        if (ReadContextValidations == null) ReadContextValidations = new List<(Func<string, ConsoleReadContext, bool>, string)>();
+        ReadContextValidations.Add((validation, message));
         return this;
     }
 }

@@ -20,19 +20,9 @@ internal class ReadStringTaskParameterConsoleReader : TaskParameterConsoleReader
         string input;
         while (true)
         {
-            var prompt = new TextPrompt<string>("[blue] :>[/]")
-                .Validate(s => ValidateMinLength(s, param), "Value too short")
-                .Validate(s => ValidateMaxLength(s, param), "Value too long")
-                .Validate(s => ValidateRegex(s, param), "Value does not conform to expression")
-                ;
-                
-            if (param.Validations != null)
-            {
-                foreach (var v in param.Validations)
-                {
-                    prompt.Validate(s => CancellableValidator(s, param, v.validator), v.message);
-                }
-            }
+            var prompt = new TextPrompt<string>("[blue] :>[/]");
+
+            AddValidations(prompt, context, param);
             if (param.AllowEmptyValue) prompt.AllowEmpty();
 
             input = AnsiConsole.Prompt(prompt);
@@ -57,27 +47,33 @@ internal class ReadStringTaskParameterConsoleReader : TaskParameterConsoleReader
                 return;
             }
 
-            /*
-            if (input.Length < param.MinLength)
-            {
-                UtilConsole.WriteError("Invalid input. Value too short");
-                continue;
-            }
-            if (input.Length > param.MaxLength)
-            {
-                UtilConsole.WriteError("Invalid input. Value too long");
-                continue;
-            }
-            if (param.RegularExpression != null && !Regex.IsMatch(input, param.RegularExpression))
-            {
-                UtilConsole.WriteError("Invalid input. Does not conform to expression");
-                continue;
-            }
-            */
             break;
         }
 
         AddAndShow(context, param.Name, input);
+    }
+
+    private void AddValidations(TextPrompt<string> prompt, ConsoleReadContext context, ReadStringTaskParameter param)
+    {
+        prompt
+            .Validate(s => ValidateMinLength(s, param), "Value too short")
+            .Validate(s => ValidateMaxLength(s, param), "Value too long")
+            .Validate(s => ValidateRegex(s, param), "Value does not conform to expression");
+
+        if (param.Validations != null)
+        {
+            foreach (var v in param.Validations)
+            {
+                prompt.Validate(s => CancellableValidator(s, param, v.validator), v.message);
+            }
+        }
+        if (param.ReadContextValidations != null)
+        {
+            foreach (var v in param.ReadContextValidations)
+            {
+                prompt.Validate(s => CancellableValidator(s, param, context, v.validator), v.message);
+            }
+        }
     }
 
     private bool ValidateMinLength(string s, ReadStringTaskParameter param)
@@ -98,5 +94,10 @@ internal class ReadStringTaskParameterConsoleReader : TaskParameterConsoleReader
     private bool CancellableValidator(string s, ReadStringTaskParameter param, Func<string, bool> validator)
     {
         return s == param.CancelString || validator(s);
+    }
+
+    private bool CancellableValidator(string s, ReadStringTaskParameter param, ConsoleReadContext ctx, Func<string, ConsoleReadContext, bool> validator)
+    {
+        return s == param.CancelString || validator(s, ctx);
     }
 }

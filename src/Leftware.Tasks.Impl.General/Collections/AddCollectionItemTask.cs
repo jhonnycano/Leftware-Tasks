@@ -1,5 +1,6 @@
 ﻿using Leftware.Common;
 using Leftware.Tasks.Core;
+using Leftware.Tasks.Core.TaskParameters;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
 using Spectre.Console;
@@ -9,11 +10,29 @@ namespace Leftware.Tasks.Impl.General.Collections
     [Descriptor("General - Add collection item")]
     public class AddCollectionItemTask : CommonTaskBase
     {
+        private const string COLLECTION = "collection";
+        private const string KEY = "key";
+        private const string LABEL = "label";
+        private const string CONTENT = "content";
         private readonly ICollectionProvider _collectionProvider;
 
         public AddCollectionItemTask(ICollectionProvider collectionProvider)
         {
             _collectionProvider = collectionProvider;
+        }
+
+        public override IList<TaskParameter> GetTaskParameterDefinition()
+        {
+            return new List<TaskParameter>
+            {
+                new SelectStringTaskParameter(COLLECTION, "Collection", _collectionProvider.GetCollections()),
+                new ReadStringTaskParameter(KEY, "Key")
+                    .WithRegex("[A-Za-z\\-_]+")
+                    .WithLengthRange(4, 80),
+                new ReadStringTaskParameter(LABEL, "Label"),
+                new ReadStringTaskParameter(CONTENT, "Content")
+                    .WithReadContextValidation(ValidateSchema, "Value does not conform to collection's schema"),
+            };
         }
 
         public override async Task<IDictionary<string, object>?> GetTaskInput()
@@ -40,10 +59,10 @@ namespace Leftware.Tasks.Impl.General.Collections
 
         public override async Task Execute(IDictionary<string, object> input)
         {
-            var col = UtilCollection.Get(input, "col", "");
-            var key = UtilCollection.Get(input, "key", "");
-            var label = UtilCollection.Get(input, "label", "");
-            var content = UtilCollection.Get(input, "content", "");
+            var col = UtilCollection.Get(input, COLLECTION, "");
+            var key = UtilCollection.Get(input, KEY, "");
+            var label = UtilCollection.Get(input, LABEL, "");
+            var content = UtilCollection.Get(input, CONTENT, "");
 
             var collectionHeader = _collectionProvider.GetHeader(col) ?? throw new InvalidOperationException("Collection not found");
 
@@ -57,6 +76,13 @@ namespace Leftware.Tasks.Impl.General.Collections
             }
 
             await _collectionProvider.AddItemAsync(col, key, label, content);
+        }
+
+        private bool ValidateSchema(string json, ConsoleReadContext ctx)
+        {
+            var col = UtilCollection.Get(ctx.Values, COLLECTION, "");
+            var colHeader = _collectionProvider.GetHeader(col) ?? throw new InvalidOperationException("Collection not found");
+            return ValidateConformsToSchema(json, colHeader.Schema);
         }
 
         private bool ValidateConformsToSchema(string json, string? schemaJson)
