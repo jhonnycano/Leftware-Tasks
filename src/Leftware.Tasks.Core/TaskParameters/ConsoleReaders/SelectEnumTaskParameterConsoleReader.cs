@@ -31,7 +31,7 @@ internal class SelectEnumTaskParameterConsoleReader : TaskParameterConsoleReader
         }
 
         var enumValue = UtilEnum.Get(param.EnumType, result);
-        context[param.Name] = enumValue!;
+        AddAndShow(context, param.Name, enumValue);
 
         /*
         var value = UtilConsole.SelectFromEnum(param.Label, param.EnumType, param.DefaultValue);
