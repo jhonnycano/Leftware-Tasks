@@ -13,6 +13,7 @@ public class ConsoleModeManager
     private readonly ICommonTaskLocator _commonTaskLocator;
     private readonly ICommonTaskProvider _commonTaskProvider;
     private readonly ICollectionProvider _collectionProvider;
+    private readonly ISettingsProvider _settingsProvider;
     private readonly ICommonTaskInputManager _commonTaskInputManager;
     //private readonly IMacroManager _macroManager;
     private IList<CommonTaskHolder> _holderList;
@@ -23,6 +24,7 @@ public class ConsoleModeManager
         ICommonTaskLocator consoleTaskLocator,
         ICommonTaskProvider commonTaskProvider,
         ICollectionProvider collectionProvider, 
+        ISettingsProvider settingsProvider,
         ICommonTaskInputManager commonTaskInputManager
         //IMacroManager macroManager
         )
@@ -30,6 +32,7 @@ public class ConsoleModeManager
         _commonTaskLocator = consoleTaskLocator;
         _commonTaskProvider = commonTaskProvider;
         _collectionProvider = collectionProvider;
+        _settingsProvider = settingsProvider;
         _commonTaskInputManager = commonTaskInputManager;
 
         //_macroManager = macroManager;
@@ -41,6 +44,7 @@ public class ConsoleModeManager
         SetupLanguage();
         ctx.HolderList = _holderList;
         ctx.CollectionProvider = _collectionProvider;
+        ctx.SettingsProvider = _settingsProvider;
 
         var currentList = _holderList;
         var pageInfo = SetupPageInfo(currentList);

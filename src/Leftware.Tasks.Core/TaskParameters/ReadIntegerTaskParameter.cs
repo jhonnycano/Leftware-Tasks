@@ -1,6 +1,6 @@
 ﻿namespace Leftware.Tasks.Core.TaskParameters;
 
-public class ReadIntegerTaskParameter : TaskParameter<int>
+public class ReadIntegerTaskParameter : TaskParameter<int?>
 {
     public ReadIntegerTaskParameter(string name, string label) : base(
         name, label)
@@ -12,13 +12,6 @@ public class ReadIntegerTaskParameter : TaskParameter<int>
 
     public int MinValue { get; private set; }
     public int MaxValue { get; private set; }
-    public int? CurrentValue { get; private set; }
-
-    public ReadIntegerTaskParameter WithCurrentValue(int currentValue)
-    {
-        CurrentValue = currentValue;
-        return this;
-    }
 
     public ReadIntegerTaskParameter WithRange(int min, int max)
     {

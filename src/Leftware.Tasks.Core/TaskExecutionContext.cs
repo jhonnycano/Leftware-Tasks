@@ -8,11 +8,14 @@ public class TaskExecutionContext
     public IList<CommonTaskHolder> HolderList { get; set; }
     public IDictionary<string, object> ExtendedInfo { get; internal set; }
     public ICollectionProvider CollectionProvider { get; set; }
+    public ISettingsProvider SettingsProvider { get; set; }
 
     public TaskExecutionContext()
     {
         TasksToSkipInMacroRecord = new List<string>();
         HolderList = new List<CommonTaskHolder>();
         ExtendedInfo = new Dictionary<string, object>();
+        CollectionProvider = null;
+        SettingsProvider = null;
     }
 }

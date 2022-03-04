@@ -8,10 +8,10 @@ internal class ReadIntegerTaskParameterConsoleReader : TaskParameterConsoleReade
     {
         var labelToShow = $"[green]{param.Label}. [/]";
         AnsiConsole.Markup(labelToShow);
-        if (param.CurrentValue != null)
-            if (AnsiConsole.Confirm($"Use current value ({param.CurrentValue}). ?", true))
+        if (param.DefaultValue != null)
+            if (AnsiConsole.Confirm($"Use current value ({param.DefaultValue}). ?", true))
             {
-                AddAndShow(context, param.Name, param.CurrentValue.Value);
+                AddAndShow(context, param.Name, param.DefaultValue);
                 return;
             }
 

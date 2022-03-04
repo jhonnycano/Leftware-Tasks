@@ -10,10 +10,10 @@ internal class ReadStringTaskParameterConsoleReader : TaskParameterConsoleReader
     {
         var labelToShow = $"[green]{param.Label}. [/]";
         AnsiConsole.Markup(labelToShow);
-        if (param.CurrentValue != null)
-            if (AnsiConsole.Confirm($"Use current value ({param.CurrentValue}). ?", true))
+        if (param.DefaultValue != null)
+            if (AnsiConsole.Confirm($"Use current value ({param.DefaultValue}). ?", true))
             {
-                AddAndShow(context, param.Name, param.CurrentValue);
+                AddAndShow(context, param.Name, param.DefaultValue);
                 return;
             }
 

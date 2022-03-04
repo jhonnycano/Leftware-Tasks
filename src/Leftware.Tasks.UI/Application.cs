@@ -12,7 +12,7 @@ internal class Application
 {
     private readonly ConsoleModeManager _consoleMode;
     private readonly SqliteDatabaseProvider _provider;
-    private readonly CollectionInitializer _collectionInitializer;
+    private readonly DatabaseInitializer _collectionInitializer;
     private readonly ILogger _logger;
 
     /*
@@ -22,7 +22,7 @@ private readonly ConsoleTaskExecutor _consoleTaskExecutor;
     public Application(
         ConsoleModeManager consoleMode,
         SqliteDatabaseProvider provider,
-        CollectionInitializer collectionInitializer,
+        DatabaseInitializer collectionInitializer,
         ILogger logger
         /*
         ConsoleTaskExecutor consoleTaskExecutor,

@@ -12,7 +12,6 @@ public class ReadStringTaskParameter : TaskParameter<string>
         RegularExpression = null;
     }
 
-    public string? CurrentValue { get; private set; }
     public int MinLength { get; private set; }
     public int MaxLength { get; private set; }
     public bool AllowEmptyValue { get; private set; }
@@ -20,12 +19,6 @@ public class ReadStringTaskParameter : TaskParameter<string>
     public string? RegularExpression { get; private set; }
     public IList<(Func<string, bool> validator, string message)> Validations { get; private set; }
     public IList<(Func<string, ConsoleReadContext, bool> validator, string message)> ReadContextValidations { get; private set; }
-
-    public ReadStringTaskParameter WithCurrentValue(string currentValue)
-    {
-        CurrentValue = currentValue;
-        return this;
-    }
 
     public ReadStringTaskParameter WithRegex(string regex)
     {

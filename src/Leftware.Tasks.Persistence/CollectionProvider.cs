@@ -1,7 +1,6 @@
 ﻿using Leftware.Injection.Attributes;
 using Leftware.Tasks.Core.Model;
 using Leftware.Tasks.Persistence;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
 
