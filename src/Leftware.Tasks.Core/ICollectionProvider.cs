@@ -6,7 +6,14 @@ public enum CollectionItemType
 {
     None, 
     String, 
+    File, 
+    Folder, 
     JsonObject, 
+}
+
+public interface IShouldExist
+{
+    public bool ShouldExist { get; set; }
 }
 
 public interface ICollectionProvider

@@ -1,7 +1,6 @@
 ﻿using Leftware.Common;
 using Leftware.Tasks.Core;
 using Leftware.Tasks.Core.Model;
-using Spectre.Console;
 
 namespace Leftware.Tasks.Impl.Azure.Tasks;
 

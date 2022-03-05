@@ -26,13 +26,22 @@ public abstract class TaskParameter
 
     public string Label { get; set; }
 
+    public string CancelString { get; set; }
+    
     public IList<TaskParameterCondition> Conditions { get; }
 
     public TaskParameter(string name, string label)
     {
         Name = name;
         Label = label;
+        CancelString = Defs.DEFAULT_CANCEL_STRING;
         Conditions = new List<TaskParameterCondition>();
+    }
+
+    public TaskParameter WithCancelString(string cancelString)
+    {
+        CancelString = cancelString;
+        return this;
     }
 }
 

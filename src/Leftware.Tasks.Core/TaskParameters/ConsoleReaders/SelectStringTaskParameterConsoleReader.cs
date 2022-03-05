@@ -7,7 +7,7 @@ internal class SelectStringTaskParameterConsoleReader : TaskParameterConsoleRead
     public override void Read(ConsoleReadContext context, SelectStringTaskParameter param)
     {
         var sourceList = new List<string>(param.List);
-        sourceList.Add(CANCEL_LABEL);
+        sourceList.Add(Defs.CANCEL_LABEL);
 
         var value = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
@@ -15,7 +15,7 @@ internal class SelectStringTaskParameterConsoleReader : TaskParameterConsoleRead
             .AddChoices(sourceList)
             );
 
-        if (value == CANCEL_LABEL)
+        if (value == Defs.CANCEL_LABEL)
         {
             context.IsCanceled = true;
             return;

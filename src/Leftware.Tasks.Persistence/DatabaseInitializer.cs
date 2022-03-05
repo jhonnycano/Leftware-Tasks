@@ -47,6 +47,9 @@ public class DatabaseInitializer
         var sql = FileResources.Db_Create;
         _dbProvider.Execute(sql, null);
 
+        await _collectionProvider.AddCollectionAsync(Defs.Collections.FAVORITE_FILE, CollectionItemType.File);
+        await _collectionProvider.AddCollectionAsync(Defs.Collections.FAVORITE_FOLDER, CollectionItemType.Folder);
+        
         var cosmosConnectionSchema = UtilJsonSchema.GetJsonSchemaForType<CosmosConnection>();
         await _collectionProvider.AddCollectionAsync(Defs.Collections.AZURE_COSMOS_CONNECTION, CollectionItemType.JsonObject, cosmosConnectionSchema);
         await _collectionProvider.AddCollectionAsync(Defs.Collections.AZURE_COSMOS_DATABASE, CollectionItemType.String);

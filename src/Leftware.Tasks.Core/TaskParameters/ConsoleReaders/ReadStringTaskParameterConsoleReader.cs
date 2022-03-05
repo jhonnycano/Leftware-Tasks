@@ -1,5 +1,4 @@
-﻿using Leftware.Common;
-using Spectre.Console;
+﻿using Spectre.Console;
 using System.Text.RegularExpressions;
 
 namespace Leftware.Tasks.Core.TaskParameters.ConsoleReaders;

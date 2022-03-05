@@ -1,4 +1,5 @@
-﻿using Leftware.Injection.Attributes;
+﻿using Leftware.Common;
+using Leftware.Injection.Attributes;
 using Leftware.Tasks.Core.Model;
 using Spectre.Console;
 using System.Text.RegularExpressions;
@@ -8,9 +9,6 @@ namespace Leftware.Tasks.Core
     [Service]
     public class CommonTaskInputHelper
     {
-        private const string MANUAL_INPUT_LABEL = "-- Input manual value";
-        private const string CANCEL_LABEL = "-- Return to main menu";
-
         public ICollectionProvider CollectionProvider { get; }
 
         public CommonTaskInputHelper(
@@ -88,16 +86,16 @@ namespace Leftware.Tasks.Core
             var items = CollectionProvider
                 .GetItems(collection)
                 .Select(i => i.Label)
-                .Append(MANUAL_INPUT_LABEL)
-                .Append(CANCEL_LABEL)
+                .Append(Defs.MANUAL_INPUT_LABEL)
+                .Append(Defs.CANCEL_LABEL)
                 .ToList();
             AnsiConsole.WriteLine();
             itemValue = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                 .AddChoices(items)
                 );
-            if (itemValue == CANCEL_LABEL) return false;
-            if (itemValue == MANUAL_INPUT_LABEL)
+            if (itemValue == Defs.CANCEL_LABEL) return false;
+            if (itemValue == Defs.MANUAL_INPUT_LABEL)
             {
                 itemValue = AnsiConsole.Prompt(
                     new TextPrompt<string>("[blue] :>[/]")
@@ -219,7 +217,7 @@ namespace Leftware.Tasks.Core
                 return null;
             }
 
-            var itemLabels = items.Select(i => i.Label).Append(CANCEL_LABEL);
+            var itemLabels = items.Select(i => i.Label).Append(Defs.CANCEL_LABEL);
 
             var labelToShow = $"[green]{label}. [/]";
             AnsiConsole.MarkupLine(labelToShow);
@@ -239,12 +237,12 @@ namespace Leftware.Tasks.Core
         {
             var labelToShow = $"[green]{label}. [/]";
             AnsiConsole.Markup(labelToShow);
-            var newOptions = options.Append(CANCEL_LABEL);
+            var newOptions = options.Append(Defs.CANCEL_LABEL);
             var selection = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                 .AddChoices(newOptions)
                 );
-            if (selection == null || selection == CANCEL_LABEL) return null;
+            if (selection == null || selection == Defs.CANCEL_LABEL) return null;
 
             AddAndShow(dic, key, selection);
             return selection;
@@ -281,6 +279,56 @@ namespace Leftware.Tasks.Core
             AnsiConsole.MarkupLine($":left_arrow: [yellow]{value}[/]");
             return value;
         }
+
+        public bool IsValidFileInput(string input, IShouldExist shouldExist)
+        {
+            input = input.Trim();
+            var dir = Path.GetDirectoryName(input);
+            if (string.IsNullOrEmpty(dir))
+            {
+                dir = Environment.CurrentDirectory;
+                input = Path.Combine(dir, input);
+            }
+            if (!Directory.Exists(dir))
+            {
+                UtilConsole.WriteError("File path not found");
+                return false;
+            }
+            if (shouldExist.ShouldExist && !File.Exists(input))
+            {
+                UtilConsole.WriteError("File not found");
+                return false;
+            }
+            return true;
+        }
+
+        public bool IsValidFolderInput(string input, IShouldExist shouldExist)
+        {
+            input = input.Trim();
+            var dir = Path.GetDirectoryName(input);
+            if (string.IsNullOrEmpty(dir))
+            {
+                dir = Environment.CurrentDirectory;
+                input = Path.Combine(dir, input);
+            }
+            if (!Directory.Exists(dir))
+            {
+                UtilConsole.WriteError("Folder path not found");
+                return false;
+            }
+            if (shouldExist.ShouldExist && !Directory.Exists(input))
+            {
+                UtilConsole.WriteError("Folder not found");
+                return false;
+            }
+            return true;
+        }
+
+        public bool IsValidSchemaInput(string input, string? schema)
+        {
+            return UtilJsonSchema.IsValidJsonForSchema(input, schema);
+        }
+
 
     }
 }

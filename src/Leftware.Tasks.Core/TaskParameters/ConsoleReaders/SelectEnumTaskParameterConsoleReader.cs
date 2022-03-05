@@ -9,7 +9,7 @@ internal class SelectEnumTaskParameterConsoleReader : TaskParameterConsoleReader
     {
         var options = new List<string>(Enum.GetNames(param.EnumType))
         {
-            CANCEL_LABEL
+            Defs.CANCEL_LABEL
         };
         if (param.ValuesToSkip != null)
         {
@@ -24,7 +24,7 @@ internal class SelectEnumTaskParameterConsoleReader : TaskParameterConsoleReader
             .AddChoices(options)
             );
 
-        if (result == CANCEL_LABEL)
+        if (result == Defs.CANCEL_LABEL)
         {
             context.IsCanceled = true;
             return;
