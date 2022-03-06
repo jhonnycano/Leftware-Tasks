@@ -6,17 +6,12 @@ internal class ReadIntegerTaskParameterConsoleReader : TaskParameterConsoleReade
 {
     public override void Read(ConsoleReadContext context, ReadIntegerTaskParameter param)
     {
-        var labelToShow = $"[green]{param.Label}. [/]";
-        AnsiConsole.Markup(labelToShow);
-        if (param.DefaultValue != null)
-            if (AnsiConsole.Confirm($"Use current value ({param.DefaultValue}). ?", true))
-            {
-                AddAndShow(context, param.Name, param.DefaultValue);
-                return;
-            }
+        if (AskIfDefaultValue(context, param)) return;
+
+        var labelForPrompt = GetLabelForPrompt(param);
 
         var itemValue = AnsiConsole.Prompt(
-            new TextPrompt<int?>($"[blue] [[{param.MinValue}-{param.MaxValue}]]:>[/]")
+            new TextPrompt<int?>(labelForPrompt)
             .Validate(n => n >= param.MinValue && n <= param.MaxValue)
             .AllowEmpty()
             );
@@ -28,16 +23,5 @@ internal class ReadIntegerTaskParameterConsoleReader : TaskParameterConsoleReade
         }
 
         AddAndShow(context, param.Name, itemValue.Value);
-
-        /*
-        var value = UtilConsole.ReadInteger(param.Label, param.MinValue, param.MaxValue, param.DefaultValue);
-        if (value == null)
-        {
-            context.IsCanceled = true;
-            return;
-        }
-
-        context[param.Name] = value.Value;
-        */
     }
 }

@@ -20,7 +20,7 @@ public class ZipFolderTask : CommonTaskBase
             {
                 new SelectFromCollectionTaskParameter(SOURCE, "Folder to compress", Defs.Collections.FAVORITE_FOLDER, true),
                 new SelectFromCollectionTaskParameter(TARGET, "Folder to save compressed file", Defs.Collections.FAVORITE_FOLDER, true),
-                new ReadStringTaskParameter(PREFIX, "File prefix (def:folder name)").WithDefaultValue(DEFAULT_PREFIX),
+                new ReadStringTaskParameter(PREFIX, "File prefix").WithDefaultValue(DEFAULT_PREFIX, "Use default prefix?"),
                 new SelectFromCollectionTaskParameter(PATTERN, "File pattern", Defs.Collections.FILE_PATTERN, true),
             };
     }

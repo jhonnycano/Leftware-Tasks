@@ -45,7 +45,7 @@ public abstract class TaskParameter
     }
 }
 
-public abstract class TaskParameter<T> : TaskParameter
+public abstract class TaskParameter<T> : TaskParameter, IHasDefault<T>
 {
     protected TaskParameter(string name, string label) : base(name, label)
     {
@@ -54,7 +54,9 @@ public abstract class TaskParameter<T> : TaskParameter
         DefaultValue = default;
     }
 
-    public T? DefaultValue { get; set; }
+    public T? DefaultValue { get; private set; }
+    public string? DefaultValueLabel { get; private set; }
+    object? IHasDefault.DefaultValue => DefaultValue;
 
     public TaskParameter<T> When(TaskParameterCondition condition)
     {
@@ -62,9 +64,24 @@ public abstract class TaskParameter<T> : TaskParameter
         return this;
     }
 
-    public TaskParameter<T> WithDefaultValue(T defaultValue)
+    public TaskParameter<T> WithDefaultValue(T defaultValue, string? defaultValueLabel = null)
     {
         DefaultValue = defaultValue;
+        DefaultValueLabel = defaultValueLabel;
         return this;
     }
+}
+
+public interface IHasDefault
+{
+    string Name { get; }
+    string Label { get; }
+    object? DefaultValue { get; }
+    string? DefaultValueLabel { get; }
+}
+
+public interface IHasDefault<T> : IHasDefault
+{
+    new T? DefaultValue => DefaultValue;
+
 }

@@ -7,20 +7,13 @@ internal class ReadStringTaskParameterConsoleReader : TaskParameterConsoleReader
 {
     public override void Read(ConsoleReadContext context, ReadStringTaskParameter param)
     {
-        var labelToShow = $"[green]{param.Label}. [/]";
-        AnsiConsole.Markup(labelToShow);
-        if (param.DefaultValue != null)
-            if (AnsiConsole.Confirm($"Use current value ({param.DefaultValue}). ?", true))
-            {
-                AddAndShow(context, param.Name, param.DefaultValue);
-                return;
-            }
+        if (AskIfDefaultValue(context, param)) return;
 
+        var labelForPrompt = GetLabelForPrompt(param);
         string input;
         while (true)
         {
-            var prompt = new TextPrompt<string>("[blue] :>[/]");
-
+            var prompt = new TextPrompt<string>(labelForPrompt);
             AddValidations(prompt, context, param);
             if (param.AllowEmptyValue) prompt.AllowEmpty();
 
@@ -31,7 +24,7 @@ internal class ReadStringTaskParameterConsoleReader : TaskParameterConsoleReader
                 {
                     var (l, t) = Console.GetCursorPosition();
                     Console.SetCursorPosition(l, t - 1);
-                    AnsiConsole.Markup(labelToShow);
+                    AnsiConsole.Markup(labelForPrompt);
                     continue;
                 }
                 else

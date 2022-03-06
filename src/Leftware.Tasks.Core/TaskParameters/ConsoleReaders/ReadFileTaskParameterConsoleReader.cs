@@ -7,19 +7,13 @@ internal class ReadFileTaskParameterConsoleReader : TaskParameterConsoleReaderBa
 {
     public override void Read(ConsoleReadContext context, ReadFileTaskParameter param)
     {
-        var labelToShow = $"[green]{param.Label}. [/]";
-        AnsiConsole.Markup(labelToShow);
-        if (param.DefaultValue != null)
-            if (AnsiConsole.Confirm($"Use current value ({param.DefaultValue}). ?", true))
-            {
-                AddAndShow(context, param.Name, param.DefaultValue);
-                return;
-            }
+        if (AskIfDefaultValue(context, param)) return;
 
+        var labelForPrompt = GetLabelForPrompt(param);
         string input;
         while (true)
         {
-            var prompt = new TextPrompt<string>("[blue] :>[/]");
+            var prompt = new TextPrompt<string>(labelForPrompt);
             input = AnsiConsole.Prompt(prompt);
             if (input == param.CancelString)
             {

@@ -17,29 +17,19 @@ internal class SelectFromCollectionTaskParameterConsoleReader : TaskParameterCon
     }
     public override void Read(ConsoleReadContext context, SelectFromCollectionTaskParameter param)
     {
-        var labelToShow = $"[green]{param.Label}. [/]";
-        AnsiConsole.Markup(labelToShow);
-        if (param.DefaultKey != null)
-            if (AnsiConsole.Confirm($"Use current key ({param.DefaultKey}). ?", true))
-            {
-                AddAndShow(context, param.Name, param.DefaultKey);
-                return;
-            }
-        if (param.DefaultValue != null)
-            if (AnsiConsole.Confirm($"Use current value ({param.DefaultValue}). ?", true))
-            {
+        if (AskIfDefaultValue(context, param)) return;
+        if (AskIfDefaultKey(context, param)) return;
 
-                AddValueAndShow(context, param.Name, param.DefaultValue);
-                return;
-            }
+        var labelForPrompt = GetLabelForPrompt(param);
+        AnsiConsole.Markup(labelForPrompt);
 
         string? input;
         var items = PrepareList(param);
         AnsiConsole.WriteLine();
-        input = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-            .AddChoices(items)
-            );
+
+        var prompt = new SelectionPrompt<string>()
+            .AddChoices(items);
+        input = AnsiConsole.Prompt(prompt);
         if (input == Defs.CANCEL_LABEL)
         {
             context.IsCanceled = true;
@@ -52,43 +42,30 @@ internal class SelectFromCollectionTaskParameterConsoleReader : TaskParameterCon
         }
 
         AddValueAndShow(context, param.Name, input);
+    }
 
-        /*
-        string value;
-        if (param.AllowManualEntry)
-        {
-            value = _inputHelper.GetStringFromCollection(param.Collection, param.Label, param.DefaultValue);
-            if (string.IsNullOrEmpty(value))
-            {
-                context.IsCanceled = true;
-                return;
-            }
-        }
-        else
-        {
-            var configValue = _collectionProvider.SelectFromCollection(param.Collection, param.Label, param.DefaultValue, param.ExitValue);
-            if (configValue == null)
-            {
-                context.IsCanceled = true;
-                return;
-            }
-            value = param.UseKeyAsValue ? configValue.Name : configValue.Value;
-        }
+    public bool AskIfDefaultKey(ConsoleReadContext context, SelectFromCollectionTaskParameter param)
+    {
+        if (param.DefaultValue == null) return false;
 
-        context[param.Name] = value;
-        */
+        var defaultLabel = $"Use default key ({param.DefaultKey})?";
+        var label = $"[green]{param.Label}[/]. {defaultLabel}";
+        if (AnsiConsole.Confirm(label, true))
+        {
+            AddAndShow(context, param.Name, param.DefaultKey);
+            return true;
+        }
+        return false;
     }
 
     private string? ReadManual(ConsoleReadContext context, SelectFromCollectionTaskParameter param)
     {
         var header = _collectionProvider.GetHeader(param.Collection) ?? throw new InvalidOperationException($"Collection not found. {param.Collection}");
-        string? result = null;
         while (true)
         {
-            result = AnsiConsole.Prompt(
-                new TextPrompt<string>("[blue] :>[/]")
-                .AllowEmpty()
-                );
+            var prompt = new TextPrompt<string>("[blue] :>[/]")
+                            .AllowEmpty();
+            var result = AnsiConsole.Prompt(prompt);
 
             if (string.IsNullOrWhiteSpace(result)) continue;
             

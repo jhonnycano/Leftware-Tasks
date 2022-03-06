@@ -7,20 +7,13 @@ internal class SelectEnumTaskParameterConsoleReader : TaskParameterConsoleReader
 {
     public override void Read(ConsoleReadContext context, SelectEnumTaskParameter param)
     {
-        var options = new List<string>(Enum.GetNames(param.EnumType))
-        {
-            Defs.CANCEL_LABEL
-        };
-        if (param.ValuesToSkip != null)
-        {
-            foreach(var valueToSkip in param.ValuesToSkip)
-            {
-                options.Remove(valueToSkip);
-            }
-        }
+        if (AskIfDefaultValue(context, param)) return;
+
+        var labelForPrompt = GetLabelForPrompt(param);
+        var options = PrepareOptions(param);
         var result = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-            .Title($"[green]{param.Label}[/]")
+            .Title(labelForPrompt)
             .AddChoices(options)
             );
 
@@ -32,17 +25,22 @@ internal class SelectEnumTaskParameterConsoleReader : TaskParameterConsoleReader
 
         var enumValue = UtilEnum.Get(param.EnumType, result);
         AddAndShow(context, param.Name, enumValue);
+    }
 
-        /*
-        var value = UtilConsole.SelectFromEnum(param.Label, param.EnumType, param.DefaultValue);
-
-        if (param.DefaultValue.Equals(value) && param.CancelIfDefault)
+    private static List<string> PrepareOptions(SelectEnumTaskParameter param)
+    {
+        var options = new List<string>(Enum.GetNames(param.EnumType))
         {
-            context.IsCanceled = true;
-            return;
+            Defs.CANCEL_LABEL
+        };
+        if (param.ValuesToSkip != null)
+        {
+            foreach (var valueToSkip in param.ValuesToSkip)
+            {
+                options.Remove(valueToSkip);
+            }
         }
 
-        context[param.Name] = value;
-        */
+        return options;
     }
 }

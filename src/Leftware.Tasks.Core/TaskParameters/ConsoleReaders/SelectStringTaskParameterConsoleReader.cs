@@ -6,15 +6,16 @@ internal class SelectStringTaskParameterConsoleReader : TaskParameterConsoleRead
 {
     public override void Read(ConsoleReadContext context, SelectStringTaskParameter param)
     {
+        if (AskIfDefaultValue(context, param)) return;
+
+        var labelForPrompt = GetLabelForPrompt(param);
         var sourceList = new List<string>(param.List);
         sourceList.Add(Defs.CANCEL_LABEL);
 
-        var value = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-            .Title($"[green]{param.Label}[/]")
-            .AddChoices(sourceList)
-            );
-
+        var prompt = new SelectionPrompt<string>()
+            .Title(labelForPrompt)
+            .AddChoices(sourceList);
+        var value = AnsiConsole.Prompt(prompt);
         if (value == Defs.CANCEL_LABEL)
         {
             context.IsCanceled = true;
@@ -22,16 +23,5 @@ internal class SelectStringTaskParameterConsoleReader : TaskParameterConsoleRead
         }
 
         context[param.Name] = value;
-
-        /*
-        var value = UtilConsole.SelectFromList(param.List, param.Label, param.ExitValue, param.DefaultValue);
-        if (string.IsNullOrEmpty(value) && !param.AllowEmpty)
-        {
-            context.IsCanceled = true;
-            return;
-        }
-
-        context[param.Name] = value;
-        */
     }
 }

@@ -10,9 +10,10 @@ internal class ReadPasswordTaskParameterConsoleReader : TaskParameterConsoleRead
         string value;
         while (true)
         {
-            //value = UtilConsole.ReadPassword(param.Label, param.CharMask);
-            var labelToShow = $"[green]{param.Label}. [/]";
-            value = AnsiConsole.Prompt(new TextPrompt<string>(labelToShow).Secret());
+            var labelForPrompt = GetLabelForPrompt(param);
+            var prompt = new TextPrompt<string>(labelForPrompt)
+                .Secret();
+            value = AnsiConsole.Prompt(prompt);
             if (string.IsNullOrEmpty(value) || param.CancelString.Equals(value, StringComparison.OrdinalIgnoreCase))
             {
                 context.IsCanceled = true;

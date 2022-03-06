@@ -7,19 +7,13 @@ internal class ReadFolderTaskParameterConsoleReader : TaskParameterConsoleReader
 {
     public override void Read(ConsoleReadContext context, ReadFolderTaskParameter param)
     {
-        var labelToShow = $"[green]{param.Label}. [/]";
-        AnsiConsole.Markup(labelToShow);
-        if (param.DefaultValue != null)
-            if (AnsiConsole.Confirm($"Use current value ({param.DefaultValue}). ?", true))
-            {
-                AddAndShow(context, param.Name, param.DefaultValue);
-                return;
-            }
+        if (AskIfDefaultValue(context, param)) return;
 
+        var labelForPrompt = GetLabelForPrompt(param);
         string input;
         while (true)
         {
-            var prompt = new TextPrompt<string>("[blue] :>[/]");
+            var prompt = new TextPrompt<string>(labelForPrompt);
             input = AnsiConsole.Prompt(prompt);
             if (input == param.CancelString)
             {
@@ -43,7 +37,7 @@ internal class ReadFolderTaskParameterConsoleReader : TaskParameterConsoleReader
                 }
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 UtilConsole.WriteError("Error trying to interpret directory");
                 continue;
@@ -52,7 +46,6 @@ internal class ReadFolderTaskParameterConsoleReader : TaskParameterConsoleReader
             break;
         }
 
-        //var value = UtilConsole.ReadFile(param.Label, param.ShouldExist);
         if (string.IsNullOrEmpty(input))
         {
             context.IsCanceled = true;
@@ -60,16 +53,5 @@ internal class ReadFolderTaskParameterConsoleReader : TaskParameterConsoleReader
         }
 
         context[param.Name] = input;
-
-        /*
-        var value = UtilConsole.ReadFolder(param.Label, param.ShouldExist);
-        if (string.IsNullOrEmpty(value))
-        {
-            context.IsCanceled = true;
-            return;
-        }
-
-        context[param.Name] = value;
-        */
     }
 }
