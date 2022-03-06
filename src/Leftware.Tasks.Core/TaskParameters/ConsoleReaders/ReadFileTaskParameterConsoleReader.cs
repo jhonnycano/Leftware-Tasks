@@ -46,7 +46,6 @@ internal class ReadFileTaskParameterConsoleReader : TaskParameterConsoleReaderBa
             break;
         }
 
-        //var value = UtilConsole.ReadFile(param.Label, param.ShouldExist);
         if (string.IsNullOrEmpty(input))
         {
             context.IsCanceled = true;

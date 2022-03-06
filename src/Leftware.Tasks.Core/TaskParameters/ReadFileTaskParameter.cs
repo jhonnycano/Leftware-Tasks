@@ -12,6 +12,5 @@ public class ReadFileTaskParameter : TaskParameter<string>
         ShouldExist = shouldExist;
     }
 
-    public bool ShouldExist { get; set; }
-    public string CancelString { get; internal set; }
+    public bool ShouldExist { get; private set; }
 }

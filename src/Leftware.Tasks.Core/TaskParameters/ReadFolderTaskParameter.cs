@@ -2,12 +2,11 @@
 
 public class ReadFolderTaskParameter : TaskParameter<string>
 {
-    public ReadFolderTaskParameter(string name, string label, bool shouldExist) : base(name, label)
+    public ReadFolderTaskParameter(string name, string label) : base(name, label)
     {
         Type = TaskParameterType.ReadFolder;
-        ShouldExist = shouldExist;
+        ShouldExist = true;
     }
 
-    public bool ShouldExist { get; set; }
-    public string CancelString { get; internal set; }
+    public bool ShouldExist { get; private set; }
 }

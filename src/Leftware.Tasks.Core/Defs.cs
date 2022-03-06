@@ -10,16 +10,19 @@ public static class Defs
 
     public static class Collections
     {
+        public const string SETTINGS = "settings";
+
+        public const string FAVORITE_FILE = "favorite-file";
+        public const string FAVORITE_FOLDER = "favorite-folder";
+        public const string FILE_PATTERN = "file-pattern";
+        public const string SYMLINK_SOURCE = "symlink-source";
+        public const string SYMLINK_TARGET = "symlink-target";
+        public const string XML_NS_FILE = "xml-ns-file";
+        
         public const string AZURE_COSMOS_CONNECTION = "az-cosmos-connection";
         public const string AZURE_COSMOS_DATABASE = "az-cosmos-database";
         public const string AZURE_COSMOS_CONTAINER = "az-cosmos-container";
         public const string AZURE_SERVICE_BUS_TOPIC_CONNECTION = "az-sb-topic-connection";
-        
-        public const string FAVORITE_FILE = "favorite-file";
-        public const string FAVORITE_FOLDER = "favorite-folder";
-        public const string FILE_PATTERN = "file-pattern";
-
-        public const string SETTINGS = "settings";
     }
 
     public static class Settings
