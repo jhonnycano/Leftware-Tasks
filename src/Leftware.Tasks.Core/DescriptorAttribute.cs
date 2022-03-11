@@ -6,6 +6,7 @@ public class DescriptorAttribute : Attribute
     public string Name { get; set; }
     public int SortOrder { get; set; }
     public bool ConfirmBeforeExecution { get; set; }
+    public bool Enabled { get; set; }
 
     public DescriptorAttribute(
         string name,
@@ -16,5 +17,6 @@ public class DescriptorAttribute : Attribute
         Name = name;
         SortOrder = sortOrder;
         ConfirmBeforeExecution = confirmBeforeExecution;
+        Enabled = true;
     }
 }

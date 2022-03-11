@@ -49,7 +49,14 @@ public class DatabaseInitializer
 
         await _collectionProvider.AddCollectionAsync(Defs.Collections.FAVORITE_FILE, CollectionItemType.File);
         await _collectionProvider.AddCollectionAsync(Defs.Collections.FAVORITE_FOLDER, CollectionItemType.Folder);
-        
+
+        var databaseConnectionSchema = UtilJsonSchema.GetJsonSchemaForType<DatabaseConnectionInfo>();
+        await _collectionProvider.AddCollectionAsync(Defs.Collections.CN_MSSQL, CollectionItemType.JsonObject, databaseConnectionSchema);
+        await _collectionProvider.AddCollectionAsync(Defs.Collections.CN_SQLITE, CollectionItemType.JsonObject, databaseConnectionSchema);
+        await _collectionProvider.AddCollectionAsync(Defs.Collections.CN_ORACLE, CollectionItemType.JsonObject, databaseConnectionSchema);
+        await _collectionProvider.AddCollectionAsync(Defs.Collections.CN_POSTGRES, CollectionItemType.JsonObject, databaseConnectionSchema);
+        await _collectionProvider.AddCollectionAsync(Defs.Collections.CN_MYSQL, CollectionItemType.JsonObject, databaseConnectionSchema);
+
         var cosmosConnectionSchema = UtilJsonSchema.GetJsonSchemaForType<CosmosConnection>();
         await _collectionProvider.AddCollectionAsync(Defs.Collections.AZURE_COSMOS_CONNECTION, CollectionItemType.JsonObject, cosmosConnectionSchema);
         await _collectionProvider.AddCollectionAsync(Defs.Collections.AZURE_COSMOS_DATABASE, CollectionItemType.String);

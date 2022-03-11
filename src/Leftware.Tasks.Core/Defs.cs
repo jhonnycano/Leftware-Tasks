@@ -14,10 +14,22 @@ public static class Defs
 
         public const string FAVORITE_FILE = "favorite-file";
         public const string FAVORITE_FOLDER = "favorite-folder";
+        public const string SERVE_FOLDER = "serve-folder";
         public const string FILE_PATTERN = "file-pattern";
         public const string SYMLINK_SOURCE = "symlink-source";
         public const string SYMLINK_TARGET = "symlink-target";
         public const string XML_NS_FILE = "xml-ns-file";
+        public const string TEXT_TRANSFORM_SOURCE = "text-transform-source";
+        
+
+        public const string CN_ORACLE = "db-cn-oracle";
+        public const string CN_MSSQL = "db-cn-mssql";
+        public const string CN_POSTGRES = "db-cn-postgres";
+        public const string CN_SQLITE = "db-cn-sqlite";
+        public const string CN_MYSQL = "db-cn-mysql";
+        
+        public const string DB_MSSQL = "db-db-mssql";
+
         
         public const string AZURE_COSMOS_CONNECTION = "az-cosmos-connection";
         public const string AZURE_COSMOS_DATABASE = "az-cosmos-database";
@@ -28,5 +40,8 @@ public static class Defs
     public static class Settings
     {
         public const string PATH_7ZIP = "path-7zip";
+        public const string PATH_FFMPEG = "path-ffmpeg";
+        public const string PATH_APPCMD = "path-appcmd";
+        public const string PATH_IIS_EXPRESS = "path-iis-express";
     }
 }
