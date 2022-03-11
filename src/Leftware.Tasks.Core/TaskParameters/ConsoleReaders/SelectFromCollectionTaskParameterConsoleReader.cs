@@ -39,9 +39,12 @@ internal class SelectFromCollectionTaskParameterConsoleReader : TaskParameterCon
         {
             input = ReadManual(context, param);
             if (input == null) return;
+
+            AddValueAndShow(context, param.Name, input);
         }
 
-        AddValueAndShow(context, param.Name, input);
+        AddAndShow(context, param.Name, input);
+
     }
 
     public bool AskIfDefaultKey(ConsoleReadContext context, SelectFromCollectionTaskParameter param)

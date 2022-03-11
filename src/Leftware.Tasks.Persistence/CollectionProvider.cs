@@ -39,7 +39,7 @@ public class CollectionProvider : ICollectionProvider
         return items;
     }
 
-    public T GetItemContentAs<T>(string collection, string key)
+    public CollectionItem GetItem(string collection, string key)
     {
         var items = GetItems(collection);
         if (items == null || items.Count == 0) throw new InvalidOperationException($"Collection empty. {collection}");
@@ -47,6 +47,12 @@ public class CollectionProvider : ICollectionProvider
         var item = items.FirstOrDefault(i => i.Key == key);
         if (item == null) throw new InvalidOperationException($"Key not found in collection. {collection}.{key}");
 
+        return item;
+    }
+
+    public T GetItemContentAs<T>(string collection, string key)
+    {
+        var item = GetItem(collection, key);
         return item.As<T>();
     }
 

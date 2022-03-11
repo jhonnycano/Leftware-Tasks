@@ -12,12 +12,15 @@ public interface ICommonTaskInputManager
 [InterfaceImplementationDefault]
 public class CommonTaskInputManager : ICommonTaskInputManager
 {
+    private readonly ICollectionProvider _collectionProvider;
     private readonly ITaskParameterConsoleReaderFactory _consoleTaskParameterFactory;
 
     public CommonTaskInputManager(
+        ICollectionProvider collectionProvider,
         ITaskParameterConsoleReaderFactory consoleTaskParameterFactory
     )
     {
+        _collectionProvider = collectionProvider;
         _consoleTaskParameterFactory = consoleTaskParameterFactory;
     }
 
@@ -26,6 +29,7 @@ public class CommonTaskInputManager : ICommonTaskInputManager
         if (dicParams == null) return new Dictionary<string, object>();
 
         var context = new ConsoleReadContext();
+        context.CollectionProvider = _collectionProvider;
         var group = new SelectGroupTaskParameter(dicParams);
         var groupReader = _consoleTaskParameterFactory.GetInstance(group.Type);
         groupReader.Read(context, group);

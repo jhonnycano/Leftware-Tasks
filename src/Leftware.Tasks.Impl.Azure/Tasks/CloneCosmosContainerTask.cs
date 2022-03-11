@@ -4,7 +4,7 @@ using Leftware.Tasks.Core.Model;
 
 namespace Leftware.Tasks.Impl.Azure.Tasks;
 
-[Descriptor("Azure - Clone Cosmos container")]
+[Descriptor("Azure Cosmos - Clone container")]
 public class CloneCosmosContainerTask : CommonTaskBase
 {
     private readonly ICollectionProvider _collectionProvider;
@@ -76,6 +76,6 @@ public class CloneCosmosContainerTask : CommonTaskBase
         }
 
         var writer = new CosmosWriter(itemTarget);
-        await writer.WriteElements(list);
+        await writer.WriteElementsAsync(list);
     }
 }
