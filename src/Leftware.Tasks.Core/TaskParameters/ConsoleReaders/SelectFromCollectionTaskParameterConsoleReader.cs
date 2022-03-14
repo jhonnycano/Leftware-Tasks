@@ -41,15 +41,15 @@ internal class SelectFromCollectionTaskParameterConsoleReader : TaskParameterCon
             if (input == null) return;
 
             AddValueAndShow(context, param.Name, input);
+            return;
         }
 
         AddAndShow(context, param.Name, input);
-
     }
 
     public bool AskIfDefaultKey(ConsoleReadContext context, SelectFromCollectionTaskParameter param)
     {
-        if (param.DefaultValue == null) return false;
+        if (string.IsNullOrEmpty(param.DefaultKey)) return false;
 
         var defaultLabel = $"Use default key ({param.DefaultKey})?";
         var label = $"[green]{param.Label}[/]. {defaultLabel}";
@@ -108,7 +108,7 @@ internal class SelectFromCollectionTaskParameterConsoleReader : TaskParameterCon
     private void AddValueAndShow(ConsoleReadContext context, string key, string value)
     {
         context[key] = Defs.USE_AS_VALUE;
-        context[$"name__$rawValue"] = value;
+        context[$"{key}__$rawValue"] = value;
         AnsiConsole.MarkupLine($":left_arrow: [blue]{key}: [/] [yellow]{value}[/]");
     }
 }

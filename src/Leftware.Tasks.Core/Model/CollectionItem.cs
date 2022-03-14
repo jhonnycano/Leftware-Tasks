@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Leftware.Common;
+using Newtonsoft.Json;
 
 namespace Leftware.Tasks.Core.Model;
 
@@ -6,7 +7,10 @@ public class CollectionItem
 {
     public CollectionItem()
     {
-
+        Collection = "";
+        Key = "";
+        Label = "";
+        Content = "";
     }
 
     public CollectionItem(
@@ -29,7 +33,12 @@ public class CollectionItem
 
     public T As<T>()
     {
-        var result = JsonConvert.DeserializeObject<T>(Content) 
+        if (typeof(T) == typeof(string))
+        {
+            return UtilConvert.ConvertTo<T>(Content)
+                ?? throw new InvalidOperationException($"Could not convert content to string for item {Collection}.{Key}");
+        }
+        var result = JsonConvert.DeserializeObject<T>(Content)
             ?? throw new InvalidOperationException($"Could not deserialize content for collection item {Collection}.{Key} into type {typeof(T).Name}");
         return result;
     }

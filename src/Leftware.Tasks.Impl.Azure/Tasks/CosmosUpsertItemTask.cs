@@ -30,14 +30,9 @@ public class CosmosUpsertItemTask : CommonTaskBase
     public override async Task Execute(IDictionary<string, object> input)
     {
         var connectionKey = input.Get(CONNECTION, "");
+        var database = GetCollectionValue<string>(input, DATABASE, Defs.Collections.AZURE_COSMOS_DATABASE);
+        var container = GetCollectionValue<string>(input, CONTAINER, Defs.Collections.AZURE_COSMOS_CONTAINER);
         var file = input.Get(FILE, "");
-        /*
-        var sourceDatabase = input.Get("source-database", "");
-        var sourceContainer = input.Get("source-container", "");
-        var connectionTargetKey = input.Get("target-connection", "");
-        var targetDatabase = input.Get("target-database", "");
-        var targetContainer = input.Get("target-container", "");
-        */
 
         var connection = Context.CollectionProvider.GetItemContentAs<CosmosConnection>(Defs.Collections.AZURE_COSMOS_CONNECTION, connectionKey!);
         if (connection == null)
@@ -46,8 +41,8 @@ public class CosmosUpsertItemTask : CommonTaskBase
             return;
         }
 
-        //itemSource.Database = sourceDatabase;
-        //itemSource.Container = sourceContainer;
+        connection.Database = database;
+        connection.Container = container;
 
         var content = File.ReadAllText(file!);
         JObject obj = JObject.Parse(content);
