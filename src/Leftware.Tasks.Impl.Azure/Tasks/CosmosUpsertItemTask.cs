@@ -23,7 +23,7 @@ public class CosmosUpsertItemTask : CommonTaskBase
                 .WithDefaultValue($"->{Defs.Collections.AZURE_COSMOS_CONNECTION}|{CONNECTION}|$.Database"),
             new SelectFromCollectionTaskParameter(CONTAINER, "container", Defs.Collections.AZURE_COSMOS_CONTAINER, true)
                 .WithDefaultValue($"->{Defs.Collections.AZURE_COSMOS_CONNECTION}|{CONNECTION}|$.Container"),
-            new ReadFileTaskParameter(FILE, "file"),
+            new ReadFileTaskParameter(FILE, "file"), 
         };
     }
 

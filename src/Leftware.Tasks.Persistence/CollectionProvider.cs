@@ -97,12 +97,21 @@ public class CollectionProvider : ICollectionProvider
 
     public void RemoveCollection(string name)
     {
-        throw new NotImplementedException();
+        var par = new { col = name };
+
+        var sql = "DELETE FROM col_item WHERE col = @col";
+        _provider.Execute(sql, par);
+
+        sql = "DELETE FROM col_header WHERE name = @col";
+        _provider.Execute(sql, par);
     }
 
     public void RemoveItem(string collection, string key)
     {
-        throw new NotImplementedException();
+        var par = new { col = collection, key };
+
+        var sql = "DELETE FROM col_item WHERE col = @col AND key = @key";
+        _provider.Execute(sql, par);
     }
 
     public void UpdateItemContent(string collection, string key, string content)

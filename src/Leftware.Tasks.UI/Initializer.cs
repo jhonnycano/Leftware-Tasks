@@ -4,6 +4,9 @@ using Leftware.Tasks.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using System.Reflection;
 using System.Runtime.Loader;
 
@@ -25,6 +28,7 @@ public static class Initializer
         services.AddOptions();
 
         PreloadAssemblies();
+        SetupNewtonsoft();
 
         var configurationBuilder = new ConfigurationBuilder();
         configurationBuilder.AddJsonFile("appsettings.json");
@@ -59,6 +63,22 @@ public static class Initializer
         return serviceProvider;
     }
 
+    private static void SetupNewtonsoft()
+    {
+        var settings = new JsonSerializerSettings
+        {
+            Formatting = Formatting.None,
+            NullValueHandling = NullValueHandling.Ignore,
+            ContractResolver = new DefaultContractResolver
+            {
+                NamingStrategy = new CamelCaseNamingStrategy()
+            }
+        };
+
+        settings.Converters.Add(new StringEnumConverter());
+        JsonConvert.DefaultSettings = () => settings;
+    }
+    
     private static void PreloadAssemblies()
     {
         var currentAssembly = Assembly.GetExecutingAssembly();
