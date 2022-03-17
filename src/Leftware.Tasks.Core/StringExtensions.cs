@@ -10,4 +10,14 @@ public static class StringExtensions
         var result = template.Render(Hash.FromAnonymousObject(source));
         return result;
     }
+
+    public static (string result, IList<string> errors) ApplyLiquid(string template, string source)
+    {
+        var inputHash = new LiquidRequestParser().ParseRequest(source);
+        var liquidTemplate = Template.Parse(template);
+
+        var result = liquidTemplate.Render(inputHash);
+        var errors = liquidTemplate.Errors.Select(e => e.Message).ToList();
+        return (result, errors);
+    }
 }
