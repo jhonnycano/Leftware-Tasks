@@ -45,7 +45,7 @@ public class ShowCollectionTask : CommonTaskBase
         {
             table.AddRow(itm.Key, itm.Label, itm.Content.Replace("[", "[[").Replace("]", "]]"));
         }
-;
+
         AnsiConsole.Write(table);
     }
 

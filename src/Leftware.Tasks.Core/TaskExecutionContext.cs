@@ -1,14 +1,17 @@
-﻿namespace Leftware.Tasks.Core;
+﻿using Spectre.Console;
+
+namespace Leftware.Tasks.Core;
 
 public class TaskExecutionContext
 {
-    public bool SkipExecution { get; set; }
-    public List<string> TasksToSkipInMacroRecord { get; set; }
+    public bool SkipExecution { get; internal set; }
+    public List<string> TasksToSkipInMacroRecord { get; internal set; }
     //public MacroHolder MacroHolder { get; set; }
-    public IList<CommonTaskHolder> HolderList { get; set; }
     public IDictionary<string, object> ExtendedInfo { get; internal set; }
-    public ICollectionProvider CollectionProvider { get; set; }
-    public ISettingsProvider SettingsProvider { get; set; }
+    public IList<CommonTaskHolder> HolderList { get; set; }
+    public ICollectionProvider? CollectionProvider { get; set; }
+    public ISettingsProvider? SettingsProvider { get; set; }
+    public StatusContext? StatusContext { get; set; }
 
     public TaskExecutionContext()
     {

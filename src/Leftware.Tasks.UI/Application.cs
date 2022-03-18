@@ -11,31 +11,21 @@ namespace Leftware.Tasks.UI;
 internal class Application
 {
     private readonly ConsoleModeManager _consoleMode;
-    private readonly SqliteDatabaseProvider _provider;
-    private readonly DatabaseInitializer _collectionInitializer;
+    private readonly DatabaseInitializer _databaseInitializer;
     private readonly ILogger _logger;
-
-    /*
-private readonly ConsoleTaskExecutor _consoleTaskExecutor;
-*/
+    private readonly TaskExecutor _taskExecutor;
 
     public Application(
         ConsoleModeManager consoleMode,
-        SqliteDatabaseProvider provider,
-        DatabaseInitializer collectionInitializer,
+        DatabaseInitializer databaseInitializer,
+        TaskExecutor taskExecutor,
         ILogger logger
-        /*
-        ConsoleTaskExecutor consoleTaskExecutor,
-        */
         )
     {
         _consoleMode = consoleMode;
-        _provider = provider;
-        _collectionInitializer = collectionInitializer;
+        _databaseInitializer = databaseInitializer;
+        _taskExecutor = taskExecutor;
         _logger = logger;
-        /*
-_consoleTaskExecutor = consoleTaskExecutor;
-*/
     }
 
     internal void Run(string[] args)
@@ -64,8 +54,6 @@ _consoleTaskExecutor = consoleTaskExecutor;
 
     private async Task StartConsoleMode(InteractiveConsoleOptions options)
     {
-        //_consoleTaskInitializer.Initialize();
-
         var ctx = new TaskExecutionContext
         {
             /*
@@ -78,24 +66,33 @@ _consoleTaskExecutor = consoleTaskExecutor;
 
         try
         {
-            await _collectionInitializer.ValidateAsync();
+            await _databaseInitializer.ValidateAsync();
             await _consoleMode.Execute(ctx);
         }
         catch (Exception ex)
         {
-            var msg = $"General exception: {ex.Message}";
-            _logger.LogError(ex, msg);
-            AnsiConsole.MarkupLine($"[olive]{msg}[/]");
+            _logger.LogError(ex, ex.Message);
+            AnsiConsole.WriteException(ex);
         }
     }
 
-    private void StartTaskExecutionMode(ExecuteTaskOptions options)
+    private async Task StartTaskExecutionMode(ExecuteTaskOptions options)
     {
-        //_consoleTaskExecutor.Execute(options.Task, options.TaskParams.ToArray());
-
-        if (options.Pause)
+        try
         {
-            UtilConsole.Pause();
+            var task = options.Task ?? throw new ArgumentNullException(nameof(options));
+            var taskParams = options.TaskParams ?? throw new ArgumentNullException(nameof(options.TaskParams));
+            await _taskExecutor.Execute(task, taskParams.ToArray());
+
+            if (options.Pause)
+            {
+                UtilConsole.Pause();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            AnsiConsole.WriteException(ex);
         }
     }
 

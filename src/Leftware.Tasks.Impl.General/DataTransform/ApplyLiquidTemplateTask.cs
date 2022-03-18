@@ -23,19 +23,17 @@ internal class ApplyLiquidTemplateTask : CommonTaskBase
             new SelectStringTaskParameter(TEMPLATE_SOURCE_TYPE, "Template source type", sourceTypes),
             new ReadStringTaskParameter(TEMPLATE_SOURCE, "Template source")
                 .When(new EqualsCondition(TEMPLATE_SOURCE_TYPE, "Inline")),
-            new ReadFileTaskParameter(TEMPLATE_SOURCE, "Template source")
+            new ReadFileTaskParameter(TEMPLATE_SOURCE, "Template file")
                 .When(new EqualsCondition(TEMPLATE_SOURCE_TYPE, "File")),
 
             new SelectStringTaskParameter(INPUT_SOURCE_TYPE, "Input source type", sourceTypes),
             new ReadStringTaskParameter(INPUT_SOURCE, "Input source")
                 .When(new EqualsCondition(INPUT_SOURCE_TYPE, "Inline")),
-            new ReadFileTaskParameter(INPUT_SOURCE, "Input source")
+            new ReadFileTaskParameter(INPUT_SOURCE, "Input file")
                 .When(new EqualsCondition(INPUT_SOURCE_TYPE, "File")),
-            new SelectStringTaskParameter(OUTPUT_TYPE, "Input source type", sourceTypes),
 
-            new ReadStringTaskParameter(OUTPUT, "Input source")
-                .When(new EqualsCondition(OUTPUT_TYPE, "Inline")),
-            new ReadFileTaskParameter(OUTPUT, "Input source")
+            new SelectStringTaskParameter(OUTPUT_TYPE, "Output source type", sourceTypes),
+            new ReadFileTaskParameter(OUTPUT, "Output file")
                 .When(new EqualsCondition(OUTPUT_TYPE, "File")),
         };
     }

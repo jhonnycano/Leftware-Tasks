@@ -168,6 +168,8 @@ public class ConsoleModeManager
                             t.AddRow($"[blue]{item.Key}[/]", $"[yellow]{item.Value}[/]");
                         }
                         AnsiConsole.Write(t);
+                        AnsiConsole.WriteLine();
+                        ShowTaskInvokingTemplate(selectedHolder, dicTaskInput);
                         if (!AnsiConsole.Confirm("Proceed with execution?")) continue;
                     }
                 }
@@ -195,7 +197,30 @@ public class ConsoleModeManager
                     }
                     else
                     {
-                        await taskInstance.Execute(_lastData);
+
+                        await AnsiConsole
+                            .Status()
+                            .Start($"Executing task [green]{selectedHolder.Name}[/]...", async statusContext => {
+                                ctx.StatusContext = statusContext;
+
+                                statusContext.Spinner(Spinner.Known.Star);
+                                statusContext.SpinnerStyle(Style.Parse("green"));
+
+                                await taskInstance.Execute(_lastData);
+
+                                /*
+                                ctx.Status("Task 1");
+                                Thread.Sleep(2000);
+                                AnsiConsole.MarkupLine("Task 1 ... [green]Done[/]");
+                                ctx.Status("Task 2");
+                                Thread.Sleep(2000);
+                                AnsiConsole.MarkupLine("Task 2 ... [green]Done[/]");
+                                ctx.Status("Task 3");
+                                Thread.Sleep(2000);
+                                AnsiConsole.MarkupLine("Task 3 ... [green]Done[/]");
+                                */
+                            });
+                        ctx.StatusContext = null;
                     }
                 }
 
@@ -215,6 +240,19 @@ public class ConsoleModeManager
             Console.ResetColor();
             UtilConsole.Pause();
         }
+    }
+
+    private void ShowTaskInvokingTemplate(CommonTaskHolder holder, IDictionary<string, object> dic)
+    {
+        var taskName = holder.Key[(holder.Key.LastIndexOf('.')+1)..];
+        if (taskName.EndsWith("Task", StringComparison.InvariantCultureIgnoreCase)) taskName = taskName[..^4];
+
+        var taskParams = string.Join(" ", dic.Select(itm => $"-p \"{itm.Key}:{itm.Value}\""));
+        AnsiConsole.WriteLine();
+        AnsiConsole.Write(new Rule("Task execution example in cli mode"));
+        AnsiConsole.WriteLine($"task -t {taskName} {taskParams}");
+        AnsiConsole.Write(new Rule());
+        AnsiConsole.WriteLine();
     }
 
     private void SetupLanguage()
