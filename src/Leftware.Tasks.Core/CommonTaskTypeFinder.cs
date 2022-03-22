@@ -1,10 +1,12 @@
 ﻿using Leftware.Common;
+using Leftware.Injection.Attributes;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 using System.Runtime.Loader;
 
 namespace Leftware.Tasks.Core;
 
+[Service]
 public class CommonTaskTypeFinder
 {
     private readonly ILogger _logger;

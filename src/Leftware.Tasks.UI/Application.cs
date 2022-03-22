@@ -28,16 +28,15 @@ internal class Application
         _logger = logger;
     }
 
-    internal void Run(string[] args)
+    internal async Task Run(string[] args)
     {
-        //_databaseProvider.GetOpenConnection(true);
+        await _databaseInitializer.ValidateAsync();
 
-        Parser.Default
-            .ParseArguments<InteractiveConsoleOptions, ExecuteTaskOptions>(args)
-            //.WithParsed<WinOptions>(opts => StartWinMode(opts))
-            .WithParsed<InteractiveConsoleOptions>(opts => StartConsoleMode(opts))
-            .WithParsed<ExecuteTaskOptions>(opts => StartTaskExecutionMode(opts))
-            .WithNotParsed(errs => ShowInvocationErrors(errs));
+        var parser = Parser.Default.ParseArguments<InteractiveConsoleOptions, ExecuteTaskOptions>(args);
+        await parser.WithParsedAsync<InteractiveConsoleOptions>(StartConsoleMode);
+        await parser.WithParsedAsync<ExecuteTaskOptions>(StartTaskExecutionMode);
+        await parser.WithNotParsedAsync(ShowInvocationErrors);
+        //await parser.WithParsedAsync<WinOptions>(StartWinMode);
     }
 
     /*
@@ -54,24 +53,15 @@ internal class Application
 
     private async Task StartConsoleMode(InteractiveConsoleOptions options)
     {
-        var ctx = new TaskExecutionContext
-        {
-            /*
-            TasksToSkipInMacroRecord = new List<string> {
-                    "Leftware.Utils.UI.Tasks.Macros.StopRecordMacroConsoleTask",
-                    "Leftware.Utils.UI.Tasks.General.UserExitConsoleTask"
-                }
-            */
-        };
+        var ctx = new TaskExecutionContext();
 
         try
         {
-            await _databaseInitializer.ValidateAsync();
             await _consoleMode.Execute(ctx);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Error in Console mode");
             AnsiConsole.WriteException(ex);
         }
     }
@@ -80,8 +70,8 @@ internal class Application
     {
         try
         {
-            var task = options.Task ?? throw new ArgumentNullException(nameof(options));
-            var taskParams = options.TaskParams ?? throw new ArgumentNullException(nameof(options.TaskParams));
+            var task = options.Task ?? throw new ArgumentException(nameof(options.Task));
+            var taskParams = options.TaskParams ?? throw new ArgumentException(nameof(options.TaskParams));
             await _taskExecutor.Execute(task, taskParams.ToArray());
 
             if (options.Pause)
@@ -91,16 +81,17 @@ internal class Application
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Error in Task execution mode");
             AnsiConsole.WriteException(ex);
         }
     }
 
-    private void ShowInvocationErrors(IEnumerable<Error> errs)
+    private async Task ShowInvocationErrors(IEnumerable<Error> errs)
     {
         foreach (var err in errs)
         {
             Console.WriteLine(err);
         };
+        await Task.CompletedTask;
     }
 }

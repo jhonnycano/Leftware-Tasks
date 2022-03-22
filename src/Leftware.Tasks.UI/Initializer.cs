@@ -1,5 +1,4 @@
-﻿using Leftware.Common;
-using Leftware.Injection;
+﻿using Leftware.Injection;
 using Leftware.Tasks.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +7,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System.Reflection;
-using System.Runtime.Loader;
 
 namespace Leftware.Tasks.UI;
 
@@ -17,7 +15,7 @@ public static class Initializer
     internal static Application Initialize()
     {
         var serviceProvider = ConfigureServices();
-        var app = serviceProvider.GetService<Application>();
+        var app = serviceProvider.GetService<Application>() ?? throw new InvalidOperationException("Application object not found");
         return app;
     }
 
@@ -27,7 +25,6 @@ public static class Initializer
 
         services.AddOptions();
 
-        PreloadAssemblies();
         SetupNewtonsoft();
 
         var configurationBuilder = new ConfigurationBuilder();
@@ -35,31 +32,14 @@ public static class Initializer
         var configuration = configurationBuilder.Build();
         services.AddSingleton<IConfiguration>(configuration);
 
-        ILogger logger = CreateLogger(services, configuration);
+        var logger = CreateLogger(services, configuration);
 
-        var commonTaskTypeFinder = new CommonTaskTypeFinder(logger);
-        var commonTaskLocator = new CommonTaskLocator(commonTaskTypeFinder);
-        services.AddSingleton<CommonTaskTypeFinder>();
-        services.AddSingleton<ICommonTaskLocator>(commonTaskLocator);
-
-        var defaultProvider = new DefaultInjectionProvider(services);
-        services.AddSingleton<IInjectionProvider>(defaultProvider);
-
-        var finder = new ServiceFinder(defaultProvider, configuration, logger);
-        finder.Find();
-
-        var commonTaskInjector = new CommonTaskInjector(commonTaskLocator);
-        commonTaskInjector.Inject(defaultProvider);
+        var injectionWorkers = new[] { new CommonTaskInjectionWorker() };
+        services.AddLeftwareInjection("Leftware.Tasks", configuration, logger, injectionWorkers);
 
         // IMPORTANT! Register our application entry point
         services.AddTransient<Application>();
-
         var serviceProvider = services.BuildServiceProvider();
-        var serviceLocator = serviceProvider.GetService<IServiceLocator>();
-        finder.ServiceLocator = serviceLocator;
-        finder.FindFactories();
-
-        serviceProvider = services.BuildServiceProvider();
         return serviceProvider;
     }
 
@@ -79,17 +59,6 @@ public static class Initializer
         JsonConvert.DefaultSettings = () => settings;
     }
     
-    private static void PreloadAssemblies()
-    {
-        var currentAssembly = Assembly.GetExecutingAssembly();
-        var path = Path.GetDirectoryName(currentAssembly.Location) ?? throw new InvalidOperationException("Assembly path not found");
-        var implementationAssemblies = Directory.GetFiles(path, "Leftware.Tasks.*.dll");
-        foreach (var assembly in implementationAssemblies)
-        {
-            AssemblyLoadContext.Default.LoadFromAssemblyPath(assembly);
-        }
-    }
-
     private static ILogger CreateLogger(IServiceCollection services, IConfigurationRoot configuration)
     {
         var logPath = configuration.GetValue("general:logPath", "");

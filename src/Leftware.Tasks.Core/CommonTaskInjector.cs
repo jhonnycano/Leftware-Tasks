@@ -21,3 +21,8 @@ public class CommonTaskInjector
         }
     }
 }
+
+public class CommonTaskInjectionWorker : InjectionWorker
+{
+    public override bool ContainsType(Type type) => !type.IsAbstract && typeof(CommonTaskBase).IsAssignableFrom(type);
+}
