@@ -27,10 +27,13 @@ public static class Defs
         public const string CN_POSTGRES = "db-cn-postgres";
         public const string CN_SQLITE = "db-cn-sqlite";
         public const string CN_MYSQL = "db-cn-mysql";
-        
+
         public const string DB_MSSQL = "db-db-mssql";
 
-        
+
+        public const string AZURE_STORAGE_CONNECTION = "az-storage-connection";
+        public const string AZURE_STORAGE_BLOB_CONTAINER = "az-storage-blob-container";
+
         public const string AZURE_COSMOS_CONNECTION = "az-cosmos-connection";
         public const string AZURE_COSMOS_DATABASE = "az-cosmos-database";
         public const string AZURE_COSMOS_CONTAINER = "az-cosmos-container";

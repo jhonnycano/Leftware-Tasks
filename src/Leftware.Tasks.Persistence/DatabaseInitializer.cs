@@ -57,6 +57,9 @@ public class DatabaseInitializer
         await _collectionProvider.AddCollectionAsync(Defs.Collections.CN_POSTGRES, CollectionItemType.JsonObject, databaseConnectionSchema);
         await _collectionProvider.AddCollectionAsync(Defs.Collections.CN_MYSQL, CollectionItemType.JsonObject, databaseConnectionSchema);
 
+        var storageConnectionSchema = UtilJsonSchema.GetJsonSchemaForType<StorageConnection>();
+        await _collectionProvider.AddCollectionAsync(Defs.Collections.AZURE_STORAGE_CONNECTION, CollectionItemType.JsonObject, storageConnectionSchema);
+
         var cosmosConnectionSchema = UtilJsonSchema.GetJsonSchemaForType<CosmosConnection>();
         await _collectionProvider.AddCollectionAsync(Defs.Collections.AZURE_COSMOS_CONNECTION, CollectionItemType.JsonObject, cosmosConnectionSchema);
         await _collectionProvider.AddCollectionAsync(Defs.Collections.AZURE_COSMOS_DATABASE, CollectionItemType.String);
@@ -65,7 +68,6 @@ public class DatabaseInitializer
         var serviceBusTopicConnectionSchema = UtilJsonSchema.GetJsonSchemaForType<ServiceBusTopicConnection>();
         await _collectionProvider.AddCollectionAsync(Defs.Collections.AZURE_SERVICE_BUS_TOPIC_CONNECTION, CollectionItemType.JsonObject, serviceBusTopicConnectionSchema);
 
-
-        //_settingsProvider.SetSetting(D)
+        //_settingsProvider.SetSetting(Defs.Settings.PATH_7ZIP, "");
     }
 }

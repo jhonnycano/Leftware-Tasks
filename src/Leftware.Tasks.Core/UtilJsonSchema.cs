@@ -18,4 +18,14 @@ public static class UtilJsonSchema
         var errors = schema.Validate(json);
         return !errors.Any();
     }
+
+    public static async Task<IList<string>> Validate(string json, string schemaJson)
+    {
+        var schema = await JsonSchema.FromJsonAsync(schemaJson);
+        var errors = schema.Validate(json);
+        var result = errors
+            .Select(e => $"Path: {e.Path}, LineNumber: {e.LineNumber}, LinePosition: {e.LinePosition}, Property: {e.Property}, Kind: {e.Kind}")
+            .ToList();
+        return result;
+    }
 }

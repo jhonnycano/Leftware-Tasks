@@ -33,8 +33,14 @@ public abstract class CommonTaskBase
             var itemValue = UtilCollection.Get(dic, $"{key}__$rawValue", "");
             return UtilConvert.ConvertTo<T>(itemValue);
         }
-        
-        var itemContent = Context.CollectionProvider.GetItemContentAs<T>(collection, item);
-        return itemContent;
+        try
+        {
+            var itemContent = Context.CollectionProvider.GetItemContentAs<T>(collection, item);
+            return itemContent;
+        }
+        catch (Exception)
+        {
+            return UtilConvert.ConvertTo<T>(item);
+        }
     }
 }

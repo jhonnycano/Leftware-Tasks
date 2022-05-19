@@ -235,6 +235,8 @@ public class ConsoleModeManager
                 Console.WriteLine("error: {0}, {1}", ex.Message, ex.StackTrace);
             }
 
+            Console.WriteLine();
+            Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.WriteLine("Task '{0}' completed", selectedHolder.Name);
             Console.ResetColor();
