@@ -19,7 +19,7 @@ public class CloneCosmosContainerTask : CommonTaskBase
     {
         var dic = GetEmptyTaskInput();
 
-        var sourceConnectionItem = Input.GetItem(dic, "source-connection", "Connection to CosmosDB", "cosmos-connection");
+        var sourceConnectionItem = Input.GetItem(dic, "source-connection", "Connection to CosmosDB", Defs.Collections.AZURE_COSMOS_CONNECTION);
         if (sourceConnectionItem == null) return null;
 
         var sourceConnection = sourceConnectionItem.As<CosmosConnection>();
@@ -27,7 +27,7 @@ public class CloneCosmosContainerTask : CommonTaskBase
         if (!Input.GetStringFromCollection(dic, "source-database", "Source Database", "cosmos-database", sourceConnection.Database)) return null;
         if (!Input.GetStringFromCollection(dic, "source-container", "Source Container", "cosmos-container", sourceConnection.Container)) return null;
 
-        var targetConnectionItem = Input.GetItem(dic, "target-connection", "Connection to CosmosDB", "cosmos-connection");
+        var targetConnectionItem = Input.GetItem(dic, "target-connection", "Connection to CosmosDB", Defs.Collections.AZURE_COSMOS_CONNECTION);
         if (targetConnectionItem == null) return null;
 
         var targetConnection = targetConnectionItem.As<CosmosConnection>();
@@ -47,13 +47,13 @@ public class CloneCosmosContainerTask : CommonTaskBase
         var targetDatabase = input.Get("target-database", "");
         var targetContainer = input.Get("target-container", "");
 
-        var itemSource = _collectionProvider.GetItemContentAs<CosmosConnection>("cosmos-connection", sourceConnectionKey!);
+        var itemSource = _collectionProvider.GetItemContentAs<CosmosConnection>(Defs.Collections.AZURE_COSMOS_CONNECTION, sourceConnectionKey!);
         if (itemSource == null)
         {
             UtilConsole.WriteError($"Source connection not found: {sourceConnectionKey}");
             return;
         }
-        var itemTarget = _collectionProvider.GetItemContentAs<CosmosConnection>("cosmos-connection", connectionTargetKey!);
+        var itemTarget = _collectionProvider.GetItemContentAs<CosmosConnection>(Defs.Collections.AZURE_COSMOS_CONNECTION, connectionTargetKey!);
         if (itemTarget == null)
         {
             UtilConsole.WriteError($"Target connection not found: {connectionTargetKey}");

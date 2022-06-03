@@ -20,4 +20,14 @@ public static class StringExtensions
         var errors = liquidTemplate.Errors.Select(e => e.Message).ToList();
         return (result, errors);
     }
+
+    public static (string result, IList<string> errors) ApplyLiquid(Template template, string source)
+    {
+        var inputHash = new LiquidRequestParser().ParseRequest(source);
+
+        var result = template.Render(inputHash);
+        var errors = template.Errors.Select(e => e.Message).ToList();
+        return (result, errors);
+    }
+
 }

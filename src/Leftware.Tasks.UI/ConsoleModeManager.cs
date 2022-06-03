@@ -197,7 +197,12 @@ public class ConsoleModeManager
                     }
                     else
                     {
+                        AnsiConsole.MarkupLine($"Executing task [green]{selectedHolder.Name}[/]...");
+                        AnsiConsole.MarkupLine("");
+                        Console.WriteLine();
 
+                        await taskInstance.Execute(_lastData);
+                        /*
                         await AnsiConsole
                             .Status()
                             .Start($"Executing task [green]{selectedHolder.Name}[/]...", async statusContext => {
@@ -207,20 +212,9 @@ public class ConsoleModeManager
                                 statusContext.SpinnerStyle(Style.Parse("green"));
 
                                 await taskInstance.Execute(_lastData);
-
-                                /*
-                                ctx.Status("Task 1");
-                                Thread.Sleep(2000);
-                                AnsiConsole.MarkupLine("Task 1 ... [green]Done[/]");
-                                ctx.Status("Task 2");
-                                Thread.Sleep(2000);
-                                AnsiConsole.MarkupLine("Task 2 ... [green]Done[/]");
-                                ctx.Status("Task 3");
-                                Thread.Sleep(2000);
-                                AnsiConsole.MarkupLine("Task 3 ... [green]Done[/]");
-                                */
                             });
                         ctx.StatusContext = null;
+                        */
                     }
                 }
 

@@ -20,7 +20,7 @@ public class ReceiveMessageServiceBusTopicTask : CommonTaskBase
     {
         var dic = GetEmptyTaskInput();
 
-        var connectionItem = Input.GetItem(dic, "connection", "Connection to Service Bus Topic", "service-bus-topic-connection");
+        var connectionItem = Input.GetItem(dic, "connection", "Connection to Service Bus Topic", Defs.Collections.AZURE_SERVICE_BUS_TOPIC_CONNECTION);
         if (connectionItem == null) return null;
         _ = connectionItem.As<ServiceBusTopicConnection>();
 
@@ -34,7 +34,7 @@ public class ReceiveMessageServiceBusTopicTask : CommonTaskBase
         var connectionKey = input.Get("connection", "");
         var duration = input.Get("duration", 0);
 
-        var connection = Context.CollectionProvider.GetItemContentAs<ServiceBusTopicConnection>("service-bus-topic-connection", connectionKey);
+        var connection = Context.CollectionProvider.GetItemContentAs<ServiceBusTopicConnection>(Defs.Collections.AZURE_SERVICE_BUS_TOPIC_CONNECTION, connectionKey);
         //var messageInfo = GetMessage(sourceType, sourceValue);
         //if (messageInfo == null) return;
         

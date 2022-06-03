@@ -1,17 +1,19 @@
-﻿namespace Leftware.Tasks.Core.Model;
+﻿using Newtonsoft.Json.Linq;
+
+namespace Leftware.Tasks.Core.Model;
 
 public class ServiceBusTopicMessage
 {
-    public object Content { get; set; }
+    public JToken Content { get; set; }
     public IDictionary<string, string> ApplicationProperties { get; set; }
 
     public ServiceBusTopicMessage()
     {
-        Content = new { };
+        Content = JToken.Parse("{}");
         ApplicationProperties = new Dictionary<string, string>();
     }
 
-    public ServiceBusTopicMessage(object content, IDictionary<string, string> applicationProperties)
+    public ServiceBusTopicMessage(JToken content, IDictionary<string, string> applicationProperties)
     {
         Content = content;
         ApplicationProperties = applicationProperties;

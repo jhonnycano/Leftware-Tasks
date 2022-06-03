@@ -73,4 +73,15 @@ public abstract class TaskParameterConsoleReaderBase<T> : TaskParameterConsoleRe
         var labelForPrompt = $"{formattedLabel}{promptString}";
         return labelForPrompt;
     }
+
+    protected bool CancellableValidator(string s, TaskParameter param, Func<string, bool> validator)
+    {
+        return s == param.CancelString || validator(s);
+    }
+
+    protected bool CancellableValidator(string s, TaskParameter param, ConsoleReadContext ctx, Func<string, ConsoleReadContext, bool> validator)
+    {
+        return s == param.CancelString || validator(s, ctx);
+    }
+
 }

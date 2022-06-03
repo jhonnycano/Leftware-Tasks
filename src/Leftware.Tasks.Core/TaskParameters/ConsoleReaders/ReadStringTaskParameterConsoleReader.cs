@@ -82,14 +82,4 @@ internal class ReadStringTaskParameterConsoleReader : TaskParameterConsoleReader
     {
         return s == param.CancelString || (param.RegularExpression == null || (s != null && Regex.IsMatch(s, param.RegularExpression)));
     }
-
-    private bool CancellableValidator(string s, ReadStringTaskParameter param, Func<string, bool> validator)
-    {
-        return s == param.CancelString || validator(s);
-    }
-
-    private bool CancellableValidator(string s, ReadStringTaskParameter param, ConsoleReadContext ctx, Func<string, ConsoleReadContext, bool> validator)
-    {
-        return s == param.CancelString || validator(s, ctx);
-    }
 }

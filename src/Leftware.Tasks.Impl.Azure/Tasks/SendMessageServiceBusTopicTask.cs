@@ -2,6 +2,8 @@
 using Leftware.Common;
 using Leftware.Tasks.Core;
 using Leftware.Tasks.Core.Model;
+using Leftware.Tasks.Core.TaskParameters;
+using Leftware.Tasks.Core.TaskParameters.Conditions;
 using Newtonsoft.Json;
 
 namespace Leftware.Tasks.Impl.Azure.Tasks;
@@ -9,6 +11,10 @@ namespace Leftware.Tasks.Impl.Azure.Tasks;
 [Descriptor("Azure - Send message to service bus topic")]
 public class SendMessageServiceBusTopicTask : CommonTaskBase
 {
+    private const string CONNECTION = "connection";
+    private const string SOURCE_TYPE = "source-type";
+    private const string SOURCE_VALUE = "source-value";
+
     private class MessageSourceOptions
     {
         public const string File = "File";
@@ -16,46 +22,34 @@ public class SendMessageServiceBusTopicTask : CommonTaskBase
         public const string ContextProperty = "Context Property";
     }
 
-    public override async Task<IDictionary<string, object>?> GetTaskInput()
+    public override IList<TaskParameter> GetTaskParameterDefinition()
     {
-        var dic = GetEmptyTaskInput();
-
-        var connectionItem = Input.GetItem(dic, "connection", "Connection to Service Bus Topic", "service-bus-topic-connection");
-        if (connectionItem == null) return null;
-        _ = connectionItem.As<ServiceBusTopicConnection>();
-
-        var messageSourceOptions = new[] { MessageSourceOptions.File, MessageSourceOptions.ConsoleInput, MessageSourceOptions.ContextProperty };
-        var source = Input.SelectOption(dic, "source-type", "Type of source for the message", messageSourceOptions);
-        if (source == null) return null;
-
-        switch (source)
+        var sourceTypes = new[] { MessageSourceOptions.File, MessageSourceOptions.ConsoleInput, MessageSourceOptions.ContextProperty };
+        return new List<TaskParameter>
         {
-            case MessageSourceOptions.File:
-                if (!Input.GetExistingFile(dic, "source-value", "File path")) return null;
-                break;
-            case MessageSourceOptions.ConsoleInput:
-                var messageSchema = UtilJsonSchema.GetJsonSchemaForType<ServiceBusTopicMessage>();
-                if (!Input.GetJson(dic, "source-value", "Json message", null, messageSchema)) return null;
-                break;
-            case MessageSourceOptions.ContextProperty:
-                if (!Input.GetString(dic, "source-value", "Context property key")) return null;
-                break;
-        }
-        return dic;
+            new SelectFromCollectionTaskParameter(CONNECTION, "connection", Defs.Collections.AZURE_SERVICE_BUS_TOPIC_CONNECTION),
+            new SelectStringTaskParameter(SOURCE_TYPE, "Content source type", sourceTypes),
+            new ReadStringTaskParameter(SOURCE_VALUE, "Content source value")
+                .WithSchema<ServiceBusTopicMessage>()
+                .When(new EqualsCondition(SOURCE_TYPE, MessageSourceOptions.ConsoleInput)),
+            new ReadFileTaskParameter(SOURCE_VALUE, "Content file")
+                .WithSchema<ServiceBusTopicMessage>()
+                .When(new EqualsCondition(SOURCE_TYPE, MessageSourceOptions.File)),
+        };
     }
 
     public override async Task Execute(IDictionary<string, object> input)
     {
-        var connectionKey = input.Get("connection", "");
-        var sourceType = input.Get("source-type", "");
-        var sourceValue = input.Get("source-value", "");
+        var connectionKey = input.Get(CONNECTION, "");
+        var sourceType = input.Get(SOURCE_TYPE, "");
+        var sourceValue = input.Get(SOURCE_VALUE, "");
 
-        var connection = Context.CollectionProvider.GetItemContentAs<ServiceBusTopicConnection>("service-bus-topic-connection", connectionKey);
+        var connection = Context.CollectionProvider.GetItemContentAs<ServiceBusTopicConnection>(Defs.Collections.AZURE_SERVICE_BUS_TOPIC_CONNECTION, connectionKey);
         var messageInfo = GetMessage(sourceType, sourceValue);
         if (messageInfo == null) return;
 
         var messageId = Guid.NewGuid().ToString();
-        var timestamp = DateTime.UtcNow.ToString("o");
+        var timestamp = DateTime.UtcNow.AddSeconds(-5).ToString("o");
         var msg = JsonConvert.SerializeObject(messageInfo.Content);
         msg = msg
             .Replace("@@timestamp", timestamp)

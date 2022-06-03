@@ -14,6 +14,7 @@ internal class ReadFileTaskParameterConsoleReader : TaskParameterConsoleReaderBa
         while (true)
         {
             var prompt = new TextPrompt<string>(labelForPrompt);
+            AddValidations(prompt, context, param);
             input = AnsiConsole.Prompt(prompt);
             if (input == param.CancelString)
             {
@@ -53,5 +54,16 @@ internal class ReadFileTaskParameterConsoleReader : TaskParameterConsoleReaderBa
         }
 
         context[param.Name] = input;
+    }
+
+    private void AddValidations(TextPrompt<string> prompt, ConsoleReadContext context, ReadFileTaskParameter param)
+    {
+        if (param.Validations != null)
+        {
+            foreach (var (validator, message) in param.Validations)
+            {
+                prompt.Validate(s => CancellableValidator(s, param, validator), message);
+            }
+        }
     }
 }

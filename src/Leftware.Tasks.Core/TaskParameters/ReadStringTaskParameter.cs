@@ -46,6 +46,14 @@ public class ReadStringTaskParameter : TaskParameter<string>
         return this;
     }
 
+    public ReadStringTaskParameter WithSchema<T>()
+    {
+        var messageSchema = UtilJsonSchema.GetJsonSchemaForType<T>();
+        if (Validations == null) Validations = new List<(Func<string, bool>, string)>();
+        Validations.Add((i => UtilJsonSchema.IsValidJsonForSchema(i, messageSchema), "Schema validation failed"));
+        return this;
+    }
+
     public ReadStringTaskParameter WithReadContextValidation(Func<string, ConsoleReadContext, bool> validation, string message)
     {
         if (ReadContextValidations == null) ReadContextValidations = new List<(Func<string, ConsoleReadContext, bool>, string)>();
