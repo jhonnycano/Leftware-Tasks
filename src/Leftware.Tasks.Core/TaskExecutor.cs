@@ -43,6 +43,15 @@ public class TaskExecutor
         };
         var taskInstance = _taskProvider.GetTaskByKey(taskHolder.Key, ctx);
 
+        Console.WriteLine();
+        var rule = new Rule($"Executing task [green]{taskHolder.Name}[/]...");
+        AnsiConsole.Write(rule);
+        AnsiConsole.Write(new Rule());
+        Console.WriteLine();
+
+        await taskInstance.Execute(dic);
+
+        /*
         await AnsiConsole
             .Status()
             .Start($"Executing task [green]{taskHolder.Name}[/]...", async statusContext => {
@@ -55,6 +64,7 @@ public class TaskExecutor
                 AnsiConsole.WriteLine();
                 await taskInstance.Execute(dic);
             });
+        */
     }
 
     private (CommonTaskHolder? taskHolder, string? error) GetTaskHolder(string taskKey)

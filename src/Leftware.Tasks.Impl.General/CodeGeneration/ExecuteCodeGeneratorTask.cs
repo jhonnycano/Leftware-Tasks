@@ -148,6 +148,7 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         var result = ExecuteTemplate(template, model);
         if (result == null) return;
 
+        AnsiConsole.MarkupLine("[/green] OK [/] " + targetFile);
         File.WriteAllText(targetFile, result);
     }
 
@@ -170,9 +171,10 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
             var targetDir = Path.GetFullPath(fileDir);
             if (targetDir == null) return null;
 
+            fullFileName = Path.GetFullPath(fullFileName);
             if (File.Exists(fullFileName))
             {
-                UtilConsole.WriteWarning($"Found existing file {fullFileName}. Skipping");
+                AnsiConsole.MarkupLine("[violet]SKIP[/] " + fullFileName);
                 return null;
             }
 

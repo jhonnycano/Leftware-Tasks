@@ -197,8 +197,10 @@ public class ConsoleModeManager
                     }
                     else
                     {
-                        AnsiConsole.MarkupLine($"Executing task [green]{selectedHolder.Name}[/]...");
-                        AnsiConsole.MarkupLine("");
+                        Console.WriteLine();
+                        var rule = new Rule($"Executing task [green]{selectedHolder.Name}[/]...");
+                        AnsiConsole.Write(rule);
+                        AnsiConsole.Write(new Rule());
                         Console.WriteLine();
 
                         await taskInstance.Execute(_lastData);
