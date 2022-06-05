@@ -6,6 +6,8 @@ using Leftware.Tasks.Core.TaskParameters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
+using System.Security.Cryptography;
+using System.Text;
 using StringExtensions = Leftware.Tasks.Core.StringExtensions;
 
 namespace Leftware.Tasks.Impl.General;
@@ -17,7 +19,6 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
 
     public override IList<TaskParameter> GetTaskParameterDefinition()
     {
-        var sourceTypes = new[] { "File", "Inline" };
         return new List<TaskParameter>
         {
             new ReadStringTaskParameter(SOURCE_DIRECTORY, "Source directory")
@@ -25,7 +26,7 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         };
     }
 
-    public override async Task Execute(IDictionary<string, object> input)
+    public async override Task Execute(IDictionary<string, object> input)
     {
         var sourceDirectory = input.Get<string>(SOURCE_DIRECTORY);
         if (string.IsNullOrEmpty(sourceDirectory))
@@ -68,7 +69,7 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         await Task.CompletedTask;
     }
 
-    private CodeGenerationSetup? GetSetup(string dir)
+    private static CodeGenerationSetup? GetSetup(string dir)
     {
         try
         {
@@ -86,7 +87,7 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         }
     }
 
-    private JObject? GetModel(string dir)
+    private static JObject? GetModel(string dir)
     {
         try
         {
@@ -104,14 +105,14 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         }
     }
 
-    private JToken GetModelData(CodeGenerationSetupItem setupItem, JObject model)
+    private static JToken? GetModelData(CodeGenerationSetupItem setupItem, JObject model)
     {
         try
         {
             var token = model.SelectToken(setupItem.DataSourcePath);
             return token;
         }
-        catch (Exception ex)
+        catch
         {
             UtilConsole.WriteError($"Could not read dataSource {setupItem.DataSourcePath} from model");
             throw;
@@ -140,7 +141,7 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         }
     }
 
-    private void GenerateCode(Template template, JToken model, CodeGenerationSetupItem setupItem, string dir)
+    private static void GenerateCode(Template template, JToken model, CodeGenerationSetupItem setupItem, string dir)
     {
         var targetFile = GenerateTargetFileName(setupItem, model, dir);
         if (targetFile == null) return;
@@ -148,11 +149,31 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         var result = ExecuteTemplate(template, model);
         if (result == null) return;
 
-        AnsiConsole.MarkupLine("[/green] OK [/] " + targetFile);
+        var relativeFileName = Path.GetRelativePath(dir, targetFile);
+
+        if (File.Exists(targetFile))
+        {
+            if (setupItem.ForceOverwrite)
+            {
+                AnsiConsole.MarkupLine("[red]FORCE[/] " + relativeFileName);
+            }
+            else
+            {
+                var md5Existing = GetMd5(File.ReadAllText(targetFile));
+                var md5New = GetMd5(result);
+                if (md5Existing == md5New)
+                {
+                    AnsiConsole.MarkupLine("[blue]SKIP[/] " + relativeFileName + " Has not changed");
+                    return;
+                }
+            }
+        }
+
+        AnsiConsole.MarkupLine("[green] OK [/] " + relativeFileName);
         File.WriteAllText(targetFile, result);
     }
 
-    private string? GenerateTargetFileName(CodeGenerationSetupItem setupItem, JToken model, string dir)
+    private static string? GenerateTargetFileName(CodeGenerationSetupItem setupItem, JToken model, string dir)
     {
         try
         {
@@ -172,10 +193,15 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
             if (targetDir == null) return null;
 
             fullFileName = Path.GetFullPath(fullFileName);
+            var relativeFileName = Path.GetRelativePath(dir, fullFileName);
             if (File.Exists(fullFileName))
             {
-                AnsiConsole.MarkupLine("[violet]SKIP[/] " + fullFileName);
-                return null;
+                if (setupItem.SkipIfAlreadyexists)
+                {
+                    AnsiConsole.MarkupLine("[violet]SKIP[/] " + relativeFileName + " Marked as 'Skip if already exists'");
+                    AnsiConsole.MarkupLine("  " + relativeFileName);
+                    return null;
+                }
             }
 
             if (!Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
@@ -188,7 +214,7 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         }
     }
 
-    private string? ExecuteTemplate(Template template, JToken model)
+    private static string? ExecuteTemplate(Template template, JToken model)
     {
         var (result, errors) = StringExtensions.ApplyLiquid(template, model.ToString());
         if (errors.Count > 0)
@@ -200,7 +226,7 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         return result;
     }
 
-    private string? GetFirstWithExtension(string dir, string extension, string label)
+    private static string? GetFirstWithExtension(string dir, string extension, string label)
     {
         var files = Directory.GetFiles(dir, extension);
         if (files.Length == 0)
@@ -223,5 +249,16 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         {
             Console.WriteLine(err);
         }
+    }
+
+    private static string GetMd5(string content)
+    {
+        var encoded = Encoding.UTF8.GetBytes(content);
+        using var algo = MD5.Create();
+        var hash = algo.ComputeHash(encoded);
+        var encodedString = BitConverter.ToString(hash)
+            .Replace("-", string.Empty)
+           .ToLower();
+        return encodedString;
     }
 }
