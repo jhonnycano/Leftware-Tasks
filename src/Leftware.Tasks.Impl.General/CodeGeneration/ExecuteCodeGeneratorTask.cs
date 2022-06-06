@@ -18,6 +18,8 @@ namespace Leftware.Tasks.Impl.General;
 internal class ExecuteCodeGeneratorTask : CommonTaskBase
 {
     private const string SOURCE_DIRECTORY = "source-directory";
+    internal enum FileCaptionText { None, Ok, Skip, }
+    internal enum FileCaptionColor { Red, Green, Blue, Violet, Cyan, Yellow }
 
     public override IList<TaskParameter> GetTaskParameterDefinition()
     {
@@ -45,7 +47,7 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
             var setupItem = item.Value;
 
             AnsiConsole.MarkupLine($"[Cyan]Generating {item.Key}[/]");
-            AnsiConsole.MarkupLine($"Path: {item.Value.TargetPath}");
+            AnsiConsole.MarkupLine($"  Path: {item.Value.TargetPath}");
             Console.WriteLine();
 
             var modelData = GetModelData(setupItem, model);
@@ -170,13 +172,13 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
                 var md5New = GetMd5(result);
                 if (md5Existing == md5New)
                 {
-                    AnsiConsole.MarkupLine("[blue]SKIP    [/] " + relativeFileName + " unchanged");
+                    WriteFileCaption(FileCaptionText.Skip, FileCaptionColor.Blue, relativeFileName, "unchanged");
                     return;
                 }
             }
         }
 
-        AnsiConsole.MarkupLine("[green]OK      [/] " + relativeFileName);
+        WriteFileCaption(FileCaptionText.Ok, FileCaptionColor.Green, relativeFileName, "");
         File.WriteAllText(targetFile, result);
     }
 
@@ -205,7 +207,8 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
             {
                 if (setupItem.SkipIfAlreadyexists)
                 {
-                    AnsiConsole.MarkupLine("[violet]SKIP[/] " + relativeFileName + " Marked as 'Skip if already exists'");
+                    WriteFileCaption(FileCaptionText.Skip, FileCaptionColor.Violet, relativeFileName, "marked as 'Skip if already exists'");
+
                     AnsiConsole.MarkupLine("  " + relativeFileName);
                     return null;
                 }
@@ -248,7 +251,7 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
 
         if (!filterResult)
         {
-            AnsiConsole.MarkupLine("[blue]SKIP    [/] " + relativeFileName + " filtered by model expression");
+            WriteFileCaption(FileCaptionText.Skip, FileCaptionColor.Yellow, relativeFileName, "filtered (expression)");
             return false;
         }
         return true;
@@ -266,6 +269,11 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         var filePath = files[0];
         Console.WriteLine(label, filePath);
         return filePath;
+    }
+
+    private static void WriteFileCaption(FileCaptionText captionText, FileCaptionColor captionColor, string message, string reason)
+    {
+        AnsiConsole.MarkupLine($"[{captionColor}]{captionText,-8}[/] {message,-65} [grey]{reason,-15}[/]");
     }
 
     private static void WriteErrors(IList<string> errors)
