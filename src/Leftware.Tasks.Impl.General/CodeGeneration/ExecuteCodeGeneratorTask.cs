@@ -44,6 +44,10 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         {
             var setupItem = item.Value;
 
+            AnsiConsole.MarkupLine($"[Cyan]Generating {item.Key}[/]");
+            AnsiConsole.MarkupLine($"Path: {item.Value.TargetPath}");
+            Console.WriteLine();
+
             var modelData = GetModelData(setupItem, model);
             if (modelData == null) continue;
 
@@ -148,8 +152,8 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         var targetFile = GenerateTargetFileName(setupItem, model, dir);
         if (targetFile == null) return;
 
-        var relativeFileName = Path.GetRelativePath(dir, targetFile);
-        if (ApplyFilter(setupItem, model, relativeFileName)) return;
+        var relativeFileName = Path.GetRelativePath(setupItem.TargetPath, Path.GetRelativePath(dir, targetFile));
+        if (!SatisfiesFilter(setupItem, model, relativeFileName)) return;
 
         var result = ExecuteTemplate(template, model);
         if (result == null) return;
@@ -158,7 +162,7 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         {
             if (setupItem.ForceOverwrite)
             {
-                AnsiConsole.MarkupLine("[red]FORCE[/] " + relativeFileName);
+                AnsiConsole.MarkupLine("[red]FORCE   [/] " + relativeFileName);
             }
             else
             {
@@ -166,13 +170,13 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
                 var md5New = GetMd5(result);
                 if (md5Existing == md5New)
                 {
-                    AnsiConsole.MarkupLine("[blue]SKIP[/] " + relativeFileName + " Has not changed");
+                    AnsiConsole.MarkupLine("[blue]SKIP    [/] " + relativeFileName + " unchanged");
                     return;
                 }
             }
         }
 
-        AnsiConsole.MarkupLine("[green] OK [/] " + relativeFileName);
+        AnsiConsole.MarkupLine("[green]OK      [/] " + relativeFileName);
         File.WriteAllText(targetFile, result);
     }
 
@@ -229,7 +233,7 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         return result;
     }
 
-    private static bool ApplyFilter(CodeGenerationSetupItem setupItem, JToken model, string relativeFileName)
+    private static bool SatisfiesFilter(CodeGenerationSetupItem setupItem, JToken model, string relativeFileName)
     {
         if (string.IsNullOrEmpty(setupItem.DataSourceFilter)) return true;
 
@@ -244,7 +248,7 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
 
         if (!filterResult)
         {
-            AnsiConsole.MarkupLine("[blue]SKIP[/] " + relativeFileName + " filtered by model expression");
+            AnsiConsole.MarkupLine("[blue]SKIP    [/] " + relativeFileName + " filtered by model expression");
             return false;
         }
         return true;
