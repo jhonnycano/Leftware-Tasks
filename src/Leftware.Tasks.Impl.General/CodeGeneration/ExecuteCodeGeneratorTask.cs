@@ -6,6 +6,8 @@ using Leftware.Tasks.Core.TaskParameters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
+using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Text;
 using StringExtensions = Leftware.Tasks.Core.StringExtensions;
@@ -146,10 +148,11 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         var targetFile = GenerateTargetFileName(setupItem, model, dir);
         if (targetFile == null) return;
 
+        var relativeFileName = Path.GetRelativePath(dir, targetFile);
+        if (ApplyFilter(setupItem, model, relativeFileName)) return;
+
         var result = ExecuteTemplate(template, model);
         if (result == null) return;
-
-        var relativeFileName = Path.GetRelativePath(dir, targetFile);
 
         if (File.Exists(targetFile))
         {
@@ -224,6 +227,27 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         }
 
         return result;
+    }
+
+    private static bool ApplyFilter(CodeGenerationSetupItem setupItem, JToken model, string relativeFileName)
+    {
+        if (string.IsNullOrEmpty(setupItem.DataSourceFilter)) return true;
+
+        bool filterResult = false;
+        try
+        {
+            filterResult = (bool)model.SelectToken(setupItem.DataSourceFilter);
+        }
+        catch
+        {
+        }
+
+        if (!filterResult)
+        {
+            AnsiConsole.MarkupLine("[blue]SKIP[/] " + relativeFileName + " filtered by model expression");
+            return false;
+        }
+        return true;
     }
 
     private static string? GetFirstWithExtension(string dir, string extension, string label)

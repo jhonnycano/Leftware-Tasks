@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="NJsonSchema" Version="10.6.10" />
     <PackageReference Include="Spectre.Console" Version="0.43.0" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.18" />
   </ItemGroup>
 
 	<ItemGroup>
