@@ -197,12 +197,7 @@ public class ConsoleModeManager
                     }
                     else
                     {
-                        Console.WriteLine();
-                        var rule = new Rule($"Executing task [green]{selectedHolder.Name}[/]...");
-                        AnsiConsole.Write(rule);
-                        AnsiConsole.Write(new Rule());
-                        Console.WriteLine();
-
+                        SpectreHelper.WriteTaskHeader(selectedHolder.Name);
                         await taskInstance.Execute(_lastData);
                         /*
                         await AnsiConsole

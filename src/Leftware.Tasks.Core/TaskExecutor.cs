@@ -43,12 +43,8 @@ public class TaskExecutor
         };
         var taskInstance = _taskProvider.GetTaskByKey(taskHolder.Key, ctx);
 
-        Console.WriteLine();
-        var rule = new Rule($"Executing task [green]{taskHolder.Name}[/]...");
-        AnsiConsole.Write(rule);
-        AnsiConsole.Write(new Rule());
-        Console.WriteLine();
 
+        SpectreHelper.WriteTaskHeader(taskHolder.Name);
         await taskInstance.Execute(dic);
 
         /*

@@ -49,7 +49,7 @@ public class SendMessageServiceBusTopicTask : CommonTaskBase
         if (messageInfo == null) return;
 
         var messageId = Guid.NewGuid().ToString();
-        var timestamp = DateTime.UtcNow.AddSeconds(-5).ToString("o");
+        var timestamp = DateTime.UtcNow.AddSeconds(-10).ToString("o");
         var msg = JsonConvert.SerializeObject(messageInfo.Content);
         msg = msg
             .Replace("@@timestamp", timestamp)
