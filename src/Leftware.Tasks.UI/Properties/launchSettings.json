@@ -11,7 +11,7 @@
     },
     "TaskExecutionMode": {
       "commandName": "Project",
-      "commandLineArgs": "task -t ApplyLiquidTemplate -p \"template-source-type:File\" \"template-source:C:\\AreaTrabajo\\Projects\\Verdant\\_old\\COG-2103\\status-message-details.liquid\" \"input-source-type:File\" \"input-source:C:\\AreaTrabajo\\Projects\\Verdant\\_old\\COG-2103\\input-fieldErrorList.json\" \"output-type:Inline\""
+      "commandLineArgs": "task -t ExecuteCodeGenerator -p \"source-directory:C:/dev/leftware/Leftware-MyFamily-Backend/data/codegen\""
     }
   }
 }

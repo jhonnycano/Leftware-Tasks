@@ -6,8 +6,6 @@ using Leftware.Tasks.Core.TaskParameters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
-using System.Linq.Dynamic.Core;
-using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Text;
 using StringExtensions = Leftware.Tasks.Core.StringExtensions;
@@ -18,7 +16,7 @@ namespace Leftware.Tasks.Impl.General;
 internal class ExecuteCodeGeneratorTask : CommonTaskBase
 {
     private const string SOURCE_DIRECTORY = "source-directory";
-    internal enum FileCaptionText { None, Ok, Skip, }
+    internal enum FileCaptionText { None, Ok, Skip, Force, Remove }
     internal enum FileCaptionColor { Red, Green, Blue, Violet, Cyan, Yellow }
 
     public override IList<TaskParameter> GetTaskParameterDefinition()
@@ -47,8 +45,11 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
             var setupItem = item.Value;
 
             AnsiConsole.MarkupLine($"[Cyan]Generating {item.Key}[/]");
-            AnsiConsole.MarkupLine($"  Path: {item.Value.TargetPath}");
+            AnsiConsole.MarkupLine($"  Path: {setupItem.TargetPath}");
             Console.WriteLine();
+
+            var fullTargetPath = Path.GetFullPath(Path.Combine(sourceDirectory, setupItem.TargetPath));
+            var files = new List<string>(Directory.GetFiles(fullTargetPath, "*.*", SearchOption.AllDirectories));
 
             var modelData = GetModelData(setupItem, model);
             if (modelData == null) continue;
@@ -60,17 +61,27 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
             {
                 foreach(var modelItem in modelData)
                 {
-                    GenerateCode(template, modelItem, setupItem, sourceDirectory);
+                    GenerateCode(template, modelItem, setupItem, sourceDirectory, files);
                 }
             }
             else if (modelData.Type == JTokenType.Object)
             {
-                GenerateCode(template, modelData, setupItem, sourceDirectory);
+                GenerateCode(template, modelData, setupItem, sourceDirectory, files);
             }
             else
             {
                 UtilConsole.WriteError("Model is not object nor array. Skipping");
                 continue;
+            }
+
+            if (setupItem.DeleteUnhandledFiles && files.Count > 0)
+            {
+                foreach(var file in files)
+                {
+                    File.Delete(file);
+                    var relativeFile = Path.GetRelativePath(sourceDirectory, fullTargetPath);
+                    WriteFileCaption(FileCaptionText.Remove, FileCaptionColor.Red, relativeFile, "");
+                }
             }
         }
 
@@ -149,13 +160,27 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         }
     }
 
-    private static void GenerateCode(Template template, JToken model, CodeGenerationSetupItem setupItem, string dir)
+    private static void GenerateCode(Template template, JToken model, CodeGenerationSetupItem setupItem, string dir, IList<string> files)
     {
         var targetFile = GenerateTargetFileName(setupItem, model, dir);
         if (targetFile == null) return;
 
-        var relativeFileName = Path.GetRelativePath(setupItem.TargetPath, Path.GetRelativePath(dir, targetFile));
-        if (!SatisfiesFilter(setupItem, model, relativeFileName)) return;
+        var relativeDir = Path.GetRelativePath(dir, targetFile);
+        var relativeFile = Path.GetRelativePath(setupItem.TargetPath, relativeDir);
+        var targetDir = Path.GetFullPath(relativeDir);
+
+        if (File.Exists(targetFile))
+        {
+            if (setupItem.SkipIfAlreadyexists)
+            {
+                WriteFileCaption(FileCaptionText.Skip, FileCaptionColor.Violet, relativeFile, "marked as 'Skip if already exists'");
+                files.Remove(targetFile);
+                return;
+            }
+        }
+
+        if (!SatisfiesFilter(setupItem, model, relativeFile)) return;
+        if (!Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
 
         var result = ExecuteTemplate(template, model);
         if (result == null) return;
@@ -164,7 +189,7 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         {
             if (setupItem.ForceOverwrite)
             {
-                AnsiConsole.MarkupLine("[red]FORCE   [/] " + relativeFileName);
+                AnsiConsole.MarkupLine("[red]FORCE   [/] " + relativeFile);
             }
             else
             {
@@ -172,14 +197,16 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
                 var md5New = GetMd5(result);
                 if (md5Existing == md5New)
                 {
-                    WriteFileCaption(FileCaptionText.Skip, FileCaptionColor.Blue, relativeFileName, "unchanged");
+                    WriteFileCaption(FileCaptionText.Skip, FileCaptionColor.Blue, relativeFile, "unchanged");
+                    files.Remove(targetFile);
                     return;
                 }
             }
         }
 
-        WriteFileCaption(FileCaptionText.Ok, FileCaptionColor.Green, relativeFileName, "");
+        WriteFileCaption(FileCaptionText.Ok, FileCaptionColor.Green, relativeFile, "");
         File.WriteAllText(targetFile, result);
+        files.Remove(targetFile);
     }
 
     private static string? GenerateTargetFileName(CodeGenerationSetupItem setupItem, JToken model, string dir)
@@ -202,19 +229,6 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
             if (targetDir == null) return null;
 
             fullFileName = Path.GetFullPath(fullFileName);
-            var relativeFileName = Path.GetRelativePath(dir, fullFileName);
-            if (File.Exists(fullFileName))
-            {
-                if (setupItem.SkipIfAlreadyexists)
-                {
-                    WriteFileCaption(FileCaptionText.Skip, FileCaptionColor.Violet, relativeFileName, "marked as 'Skip if already exists'");
-
-                    AnsiConsole.MarkupLine("  " + relativeFileName);
-                    return null;
-                }
-            }
-
-            if (!Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
             return fullFileName;
         }
         catch (Exception)
