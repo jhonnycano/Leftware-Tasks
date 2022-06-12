@@ -20,7 +20,8 @@ public abstract class TaskParameterConsoleReaderBase<T> : TaskParameterConsoleRe
     protected T AddAndShow<T>(ConsoleReadContext ctx, string key, T value)
     {
         ctx[key] = value;
-        AnsiConsole.MarkupLine($":left_arrow: [blue]{key}: [/] [yellow]{value}[/]");
+        AnsiConsole.Markup($"* [blue]{key}: [/]");
+        Console.WriteLine(value);
         return value;
     }
 

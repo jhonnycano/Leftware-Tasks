@@ -165,7 +165,9 @@ public class ConsoleModeManager
                         var t = new Table().AddColumns("Key", "Value");
                         foreach (var item in dicTaskInput)
                         {
-                            t.AddRow($"[blue]{item.Key}[/]", $"[yellow]{item.Value}[/]");
+                            var textKey = new Text((item.Key ?? "").ToString(), new Style(Color.Blue));
+                            var textValue = new Text((item.Value ?? "").ToString(), new Style(Color.Yellow));
+                            t.AddRow(textKey, textValue);
                         }
                         AnsiConsole.Write(t);
                         AnsiConsole.WriteLine();
@@ -240,10 +242,10 @@ public class ConsoleModeManager
         var taskName = holder.Key[(holder.Key.LastIndexOf('.')+1)..];
         if (taskName.EndsWith("Task", StringComparison.InvariantCultureIgnoreCase)) taskName = taskName[..^4];
 
-        var taskParams = string.Join(" ", dic.Select(itm => $"-p \"{itm.Key}:{itm.Value}\""));
+        var taskParams = string.Join(" ", dic.Select(itm => $"\"{itm.Key}:{(itm.Value ?? "").ToString().Replace("\"", "\"\"")}\""));
         AnsiConsole.WriteLine();
         AnsiConsole.Write(new Rule("Task execution example in cli mode"));
-        AnsiConsole.WriteLine($"task -t {taskName} {taskParams}");
+        AnsiConsole.WriteLine($"task -t {taskName} -p {taskParams}");
         AnsiConsole.Write(new Rule());
         AnsiConsole.WriteLine();
     }

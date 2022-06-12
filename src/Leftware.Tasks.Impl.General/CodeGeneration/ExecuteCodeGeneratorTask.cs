@@ -165,21 +165,21 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         var targetFile = GenerateTargetFileName(setupItem, model, dir);
         if (targetFile == null) return;
 
-        var relativeDir = Path.GetRelativePath(dir, targetFile);
-        var relativeFile = Path.GetRelativePath(setupItem.TargetPath, relativeDir);
-        var targetDir = Path.GetFullPath(relativeDir);
+        var filePathRelativeToDir = Path.GetRelativePath(dir, targetFile);
+        var filePathRelativeToTargetPath = Path.GetRelativePath(setupItem.TargetPath, filePathRelativeToDir);
+        var targetDir = Path.GetDirectoryName(targetFile);
 
         if (File.Exists(targetFile))
         {
             if (setupItem.SkipIfAlreadyexists)
             {
-                WriteFileCaption(FileCaptionText.Skip, FileCaptionColor.Violet, relativeFile, "marked as 'Skip if already exists'");
+                WriteFileCaption(FileCaptionText.Skip, FileCaptionColor.Violet, filePathRelativeToTargetPath, "marked as 'Skip if already exists'");
                 files.Remove(targetFile);
                 return;
             }
         }
 
-        if (!SatisfiesFilter(setupItem, model, relativeFile)) return;
+        if (!SatisfiesFilter(setupItem, model, filePathRelativeToTargetPath)) return;
         if (!Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
 
         var result = ExecuteTemplate(template, model);
@@ -189,7 +189,7 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         {
             if (setupItem.ForceOverwrite)
             {
-                AnsiConsole.MarkupLine("[red]FORCE   [/] " + relativeFile);
+                AnsiConsole.MarkupLine("[red]FORCE   [/] " + filePathRelativeToTargetPath);
             }
             else
             {
@@ -197,14 +197,14 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
                 var md5New = GetMd5(result);
                 if (md5Existing == md5New)
                 {
-                    WriteFileCaption(FileCaptionText.Skip, FileCaptionColor.Blue, relativeFile, "unchanged");
+                    WriteFileCaption(FileCaptionText.Skip, FileCaptionColor.Blue, filePathRelativeToTargetPath, "unchanged");
                     files.Remove(targetFile);
                     return;
                 }
             }
         }
 
-        WriteFileCaption(FileCaptionText.Ok, FileCaptionColor.Green, relativeFile, "");
+        WriteFileCaption(FileCaptionText.Ok, FileCaptionColor.Green, filePathRelativeToTargetPath, "");
         File.WriteAllText(targetFile, result);
         files.Remove(targetFile);
     }
