@@ -14,6 +14,8 @@ internal class ApplyLiquidTemplateTask : CommonTaskBase
     private const string INPUT_SOURCE = "input-source";
     private const string OUTPUT_TYPE = "output-type";
     private const string OUTPUT = "output";
+    private const string USE_CUSTOM_FILTERS = "use-custom-filters";
+    private const string CUSTOM_FILTERS_FILE = "custom-filters-file";
 
     public override IList<TaskParameter> GetTaskParameterDefinition()
     {
@@ -33,12 +35,16 @@ internal class ApplyLiquidTemplateTask : CommonTaskBase
                 .When(new EqualsCondition(INPUT_SOURCE_TYPE, "File")),
 
             new SelectStringTaskParameter(OUTPUT_TYPE, "Output source type", sourceTypes),
-            new ReadFileTaskParameter(OUTPUT, "Output file")
+            new ReadFileTaskParameter(OUTPUT, "Output file", false)
                 .When(new EqualsCondition(OUTPUT_TYPE, "File")),
+
+            new ReadBoolTaskParameter(USE_CUSTOM_FILTERS, "Use custom filters?"),
+            new ReadFileTaskParameter(CUSTOM_FILTERS_FILE, "Custom filters file")
+                .When(new EqualsCondition(USE_CUSTOM_FILTERS, true)),
         };
     }
 
-    public override async Task Execute(IDictionary<string, object> input)
+    public async override Task Execute(IDictionary<string, object> input)
     {
         var templateSourceType = input.Get<string>(TEMPLATE_SOURCE_TYPE);
         var templateSource = input.Get<string>(TEMPLATE_SOURCE);
@@ -46,33 +52,31 @@ internal class ApplyLiquidTemplateTask : CommonTaskBase
         var inputSource = input.Get<string>(INPUT_SOURCE);
         var outputType = input.Get<string>(OUTPUT_TYPE);
         var output = input.Get<string>(OUTPUT);
+        var customFiltersFile = input.Get<string>(CUSTOM_FILTERS_FILE);
 
         var template = GetString(templateSourceType, templateSource);
         var inputItem = GetString(inputSourceType, inputSource);
-        var outputItem = ApplyLiquid(template, inputItem);
-        WriteString(outputItem.result, outputType, output);
-        WriteErrors(outputItem.errors);
+        var (result, errors) = ApplyLiquid(template, inputItem, customFiltersFile);
+        WriteString(result, outputType, output);
+        WriteErrors(errors);
     }
 
-    private (string result, IList<string> errors) ApplyLiquid(string template, string inputItem)
+    private static (string result, IList<string> errors) ApplyLiquid(string template, string inputItem, string customFiltersFile)
     {
-        return StringExtensions.ApplyLiquid(template, inputItem);
+        return StringExtensions.ApplyLiquid(template, inputItem, customFiltersFile);
     }
 
     private static string GetString(string sourceType, string source)
     {
-        switch(sourceType)
+        return sourceType switch
         {
-            case "File":
-                return File.ReadAllText(source);
-            case "Inline":
-                return source;
-            default:
-                throw new InvalidOperationException($"Unknown source type: {sourceType}");
-        }
+            "File" => File.ReadAllText(source),
+            "Inline" => source,
+            _ => throw new InvalidOperationException($"Unknown source type: {sourceType}"),
+        };
     }
 
-    private void WriteString(string item, string sourceType, string source)
+    private static void WriteString(string item, string sourceType, string source)
     {
         switch (sourceType)
         {

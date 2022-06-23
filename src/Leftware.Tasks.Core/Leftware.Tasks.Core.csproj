@@ -9,6 +9,8 @@
   <ItemGroup>
     <PackageReference Include="DotLiquid" Version="2.2.595" />
     <PackageReference Include="Leftware.Common" Version="0.3.5" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.2.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
     <PackageReference Include="NJsonSchema" Version="10.6.10" />
     <PackageReference Include="Spectre.Console" Version="0.43.0" />	  

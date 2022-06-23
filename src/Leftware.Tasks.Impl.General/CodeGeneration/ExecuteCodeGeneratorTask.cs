@@ -168,6 +168,7 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         var filePathRelativeToDir = Path.GetRelativePath(dir, targetFile);
         var filePathRelativeToTargetPath = Path.GetRelativePath(setupItem.TargetPath, filePathRelativeToDir);
         var targetDir = Path.GetDirectoryName(targetFile);
+        if (targetDir is null) throw new InvalidOperationException("targetDir is null");
 
         if (File.Exists(targetFile))
         {
@@ -254,10 +255,13 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
     {
         if (string.IsNullOrEmpty(setupItem.DataSourceFilter)) return true;
 
-        bool filterResult = false;
+        var filterResult = false;
         try
         {
-            filterResult = (bool)model.SelectToken(setupItem.DataSourceFilter);
+            var token = model.SelectToken(setupItem.DataSourceFilter);
+            if (token is null) return false;
+
+            filterResult = (bool)token;
         }
         catch
         {

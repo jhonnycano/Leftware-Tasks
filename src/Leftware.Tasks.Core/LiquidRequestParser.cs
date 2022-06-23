@@ -5,7 +5,7 @@ namespace Leftware.Tasks.Core;
 
 public class LiquidRequestParser
 {
-    public Hash ParseRequest(string content, string? rootElement = null)
+    public static Hash ParseRequest(string content, string? rootElement = null)
     {
         if (rootElement == null)
         {

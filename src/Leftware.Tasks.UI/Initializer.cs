@@ -62,7 +62,10 @@ public static class Initializer
     private static ILogger CreateLogger(IServiceCollection services, IConfigurationRoot configuration)
     {
         var logPath = configuration.GetValue("general:logPath", "");
-        if (string.IsNullOrEmpty(logPath)) logPath = Environment.CurrentDirectory;
+        var globalAppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        var appDataPath = Path.Combine(globalAppDataPath, "Leftware", "Logs");
+        if (string.IsNullOrEmpty(logPath)) logPath = appDataPath;
+
         var assemblyLocation = Assembly.GetExecutingAssembly().Location;
         var assemblyFolder = Path.GetDirectoryName(assemblyLocation);
         logPath = logPath.Replace("{{exePath}}", assemblyFolder);
