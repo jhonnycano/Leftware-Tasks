@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using DotLiquid;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using System.Reflection;
@@ -20,9 +21,9 @@ public class UtilCompile
         var references = new List<MetadataReference>
     {
         MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-        MetadataReference.CreateFromFile(typeof(Console).Assembly.Location)
+        MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
+        MetadataReference.CreateFromFile(typeof(Template).Assembly.Location)
     };
-        //var assemblyPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Leftware", "Temp", "dynamicAssembly.dll");
         var assemblyPath = "dynamicAssembly.dll";
         var csCompilation = CSharpCompilation.Create(assemblyPath,
             new[] { parsedSyntaxTree },
