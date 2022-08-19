@@ -68,5 +68,34 @@ namespace Leftware.Tasks.Resources {
                 return ResourceManager.GetString("Console_Welcome", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [green]AVAILABLE COMMANDS[/]
+        ///
+        ///[magenta]reload[/]
+        ///
+        ///Reloads the source list from the JSON files in the directory.
+        ///
+        ///[blue]example:[/] reload
+        ///
+        ///[magenta]source[/]
+        ///
+        ///Sets the source list as a sub expression which will be executed on each object of the current source:
+        ///
+        ///[blue]example:[/] source $.resources[0].properties.definition..actions
+        ///
+        ///[magenta]filterbykeys[/]
+        ///
+        ///Filters out objects which do not have the search term in any of its property keys
+        ///
+        ///[blue]example:[/] filterbykeys send-change
+        ///
+        ///[mage [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string Help_QueryJson {
+            get {
+                return ResourceManager.GetString("Help_QueryJson", resourceCulture);
+            }
+        }
     }
 }

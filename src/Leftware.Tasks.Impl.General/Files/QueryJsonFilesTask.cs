@@ -1,8 +1,10 @@
 ﻿using Leftware.Common;
 using Leftware.Tasks.Core;
 using Leftware.Tasks.Core.TaskParameters;
+using Leftware.Tasks.Resources;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace Leftware.Tasks.Impl.General.Files;
@@ -11,8 +13,8 @@ namespace Leftware.Tasks.Impl.General.Files;
 internal class QueryJsonFilesTask : CommonTaskBase
 {
     private const string FOLDER = "folder";
-    private IList<JsonQueryElement> _items;
-    private string _folder;
+    private IList<JsonQueryElement> _items = default!;
+    private string _folder = default!;
 
     public override IList<TaskParameter> GetTaskParameterDefinition()
     {
@@ -22,7 +24,7 @@ internal class QueryJsonFilesTask : CommonTaskBase
         };
     }
 
-    public override async Task Execute(IDictionary<string, object> input)
+    public async override Task Execute(IDictionary<string, object> input)
     {
         _folder = input.Get<string>(FOLDER) ?? "";
 
@@ -57,6 +59,9 @@ internal class QueryJsonFilesTask : CommonTaskBase
                 return false;
             case "clear":
                 Console.Clear();
+                break;
+            case "help":
+                AnsiConsole.MarkupLine(StringResources.Help_QueryJson);
                 break;
             case "show":
                 Show(args);
@@ -97,19 +102,21 @@ internal class QueryJsonFilesTask : CommonTaskBase
         var source = _items;
         if (!string.IsNullOrEmpty(args))
         {
-            if (int.TryParse(args, out int value))
+            if (int.TryParse(args, out var value))
             {
                 var item = _items.ElementAtOrDefault(value);
                 Console.WriteLine(item);
                 return;
             }
 
-            source = _items.Select(t => new JsonQueryElement { File = t.File, Content = t.SelectToken(args) }).ToList();
+            source = _items.Select(t => new JsonQueryElement { File = t.File, Content = t.SelectToken(args) ?? JToken.Parse("null") }).ToList();
         }
 
         foreach (var token in source)
         {
-            Console.WriteLine(token);
+            AnsiConsole.WriteLine($"[yellow]******************************[/]");
+            AnsiConsole.WriteLine($"[yellow]{token.File}[/]");
+            AnsiConsole.WriteLine($"{token.Content}");
             Console.WriteLine();
         }
     }
@@ -132,10 +139,13 @@ internal class QueryJsonFilesTask : CommonTaskBase
         var newList = new List<JsonQueryElement>();
         foreach (var item in _items)
         {
-            var newToken = item.SelectToken(query);
-            if (newToken != null && newToken.Type != JTokenType.Null)
+            var newTokenList = item.SelectTokens(query).ToList();
+            foreach (var newToken in newTokenList)    
             {
-                newList.Add(new JsonQueryElement { File = item.File, Content = newToken });
+                if (newToken != null && newToken.Type != JTokenType.Null)
+                {
+                    newList.Add(new JsonQueryElement { File = item.File, Content = newToken });
+                }
             }
         }
         if (newList.Count == 0)
@@ -153,10 +163,12 @@ internal class QueryJsonFilesTask : CommonTaskBase
         {
             if (item.Type != JTokenType.Object) continue;
             var newObject = new JObject();
-            foreach (var prop in (JObject)item.Content)
+            var currentObject = (JObject)item.Content;
+            foreach (var prop in currentObject.Properties())
             {
-                if (prop.Key.Contains(filter))
-                    newObject[prop.Key] = prop.Value;
+                Debug.WriteLine($"prop: {prop.Name}");
+                if (prop.Name.Contains(filter))
+                    newObject[prop.Name] = prop.Value;
             }
             if (!newObject.Properties().Any()) continue;
             newList.Add(new JsonQueryElement { File = item.File, Content = newObject });
@@ -318,6 +330,11 @@ internal class JsonQueryElement
     public JToken? SelectToken(string query)
     {
         return Content.SelectToken(query);
+    }
+
+    public IEnumerable<JToken> SelectTokens(string query)
+    {
+        return Content.SelectTokens(query);
     }
 
     public override string ToString()
