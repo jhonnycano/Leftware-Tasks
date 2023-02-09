@@ -3,8 +3,6 @@ using Leftware.Tasks.Core;
 using Leftware.Tasks.Core.Model;
 using Leftware.Tasks.Core.TaskParameters;
 using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
 using Spectre.Console;
 
 namespace Leftware.Tasks.Impl.Azure.Tasks;
@@ -47,36 +45,36 @@ public class UploadFileToBlobStorageTask : CommonTaskBase
 
     public async Task UploadFileToBlob(StorageConnection connection, string filePath)
     {
-        WriteStatus("Openning connection");
+        //WriteStatus("Openning connection");
         
-        using Stream file = new FileStream(filePath, FileMode.Open);
-        var storageAccount = CloudStorageAccount.Parse(connection.ConnectionString);
-        var blobClient = storageAccount.CreateCloudBlobClient();
-        var container = blobClient.GetContainerReference(connection.Container);
+        //using Stream file = new FileStream(filePath, FileMode.Open);
+        //var storageAccount = CloudStorageAccount.Parse(connection.ConnectionString);
+        //var blobClient = storageAccount.CreateCloudBlobClient();
+        //var container = blobClient.GetContainerReference(connection.Container);
 
-        WriteStatus("Creating container if not exists");
-        var createContainerTask = container.CreateIfNotExistsAsync();
-        createContainerTask.Wait();
-        var createContainer = createContainerTask.Result;
-        if (createContainer)
-        {
-            var permissions = new BlobContainerPermissions
-            {
-                PublicAccess = BlobContainerPublicAccessType.Blob
-            };
-            var permissionsTask = container.SetPermissionsAsync(permissions);
-            permissionsTask.Wait();
-        }
+        //WriteStatus("Creating container if not exists");
+        //var createContainerTask = container.CreateIfNotExistsAsync();
+        //createContainerTask.Wait();
+        //var createContainer = createContainerTask.Result;
+        //if (createContainer)
+        //{
+        //    var permissions = new BlobContainerPermissions
+        //    {
+        //        PublicAccess = BlobContainerPublicAccessType.Blob
+        //    };
+        //    var permissionsTask = container.SetPermissionsAsync(permissions);
+        //    permissionsTask.Wait();
+        //}
 
-        var extension = Path.GetExtension(filePath);
-        var fileNameWithExtension = Path.GetFileName(filePath);
-        var cloudBlockBlob = container.GetBlockBlobReference(fileNameWithExtension);
-        cloudBlockBlob.Properties.ContentType = GetMimeTypeForFileExtension(extension);
-        WriteStatus("Uploading file to container");
-        var uploadTask = cloudBlockBlob.UploadFromStreamAsync(file);
-        uploadTask.Wait();
+        //var extension = Path.GetExtension(filePath);
+        //var fileNameWithExtension = Path.GetFileName(filePath);
+        //var cloudBlockBlob = container.GetBlockBlobReference(fileNameWithExtension);
+        //cloudBlockBlob.Properties.ContentType = GetMimeTypeForFileExtension(extension);
+        //WriteStatus("Uploading file to container");
+        //var uploadTask = cloudBlockBlob.UploadFromStreamAsync(file);
+        //uploadTask.Wait();
 
-        WriteStatus("Upload completed");
+        //WriteStatus("Upload completed");
     }
 
     private void WriteStatus(string msg)

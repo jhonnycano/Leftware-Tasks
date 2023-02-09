@@ -8,9 +8,9 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.123" />
-    <PackageReference Include="Leftware.Common" Version="0.3.5" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.1" />
-    <PackageReference Include="NJsonSchema" Version="10.6.10" />
+    <PackageReference Include="Leftware.Common" Version="0.3.8" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.9" />
+    <PackageReference Include="NJsonSchema" Version="10.8.0" />
   </ItemGroup>
 
   <ItemGroup>

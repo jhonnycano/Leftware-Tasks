@@ -33,6 +33,16 @@ public class CosmosWriter
         task.Wait();
     }
 
+    public async Task PatchItemAsync(string id, string partitionKey, IList<PatchOperation> patchOperations)
+    {
+        var container = await GetContainerAsync();
+        if (container == null) return;
+
+        var partitionKeyItem = new PartitionKey(partitionKey);
+        var task = container.PatchItemAsync<dynamic>(id, partitionKeyItem, patchOperations.ToList());
+        task.Wait();
+    }
+
     private async Task<Container?> GetContainerAsync()
     {
         var cosmosClient = UtilCosmos.GetCosmosClient(_cn.EndpointUrl, _cn.AccessKey);

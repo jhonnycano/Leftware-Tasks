@@ -43,12 +43,19 @@ internal class ExecuteCodeGeneratorTask : CommonTaskBase
         foreach(var item in setup.Items)
         {
             var setupItem = item.Value;
+            if (!setupItem.Enabled)
+            {
+                AnsiConsole.MarkupLine($"[Violet]Setup item not enabled: {item.Key}[/]");
+                continue;
+            }
 
             AnsiConsole.MarkupLine($"[Cyan]Generating {item.Key}[/]");
             AnsiConsole.MarkupLine($"  Path: {setupItem.TargetPath}");
             Console.WriteLine();
 
             var fullTargetPath = Path.GetFullPath(Path.Combine(sourceDirectory, setupItem.TargetPath));
+            if (!Directory.Exists(fullTargetPath)) Directory.CreateDirectory(fullTargetPath);
+
             var files = new List<string>(Directory.GetFiles(fullTargetPath, "*.*", SearchOption.AllDirectories));
 
             var modelData = GetModelData(setupItem, model);

@@ -10,4 +10,5 @@ public class CodeGenerationSetupItem
     public bool SkipIfAlreadyexists { get; set; } = false;
     public bool ForceOverwrite { get; set; } = false;
     public bool DeleteUnhandledFiles { get; set; } = false;
+    public bool Enabled { get; set; } = true;
 }
