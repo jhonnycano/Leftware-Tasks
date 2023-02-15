@@ -20,8 +20,8 @@ internal class RenameAddPrefixSuffixConsoleTask : CommonTaskBase
             new ReadFolderTaskParameter(SOURCE, "Source folder"),
             new ReadStringTaskParameter(PATTERN, "Pattern").WithDefaultValue("*.*"),
             new ReadBoolTaskParameter(RECURSIVE, "Recursive"),
-            new ReadStringTaskParameter(PREFIX, "Prefix to add"),
-            new ReadStringTaskParameter(SUFFIX, "Suffix to add"),
+            new ReadStringTaskParameter(PREFIX, "Prefix to add").AllowEmpty(),
+            new ReadStringTaskParameter(SUFFIX, "Suffix to add").AllowEmpty(),
         };
     }
 
